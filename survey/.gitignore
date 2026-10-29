@@ -28,3 +28,9 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Tencent Cloud EdgeOne
+.env
+.edgeone/*
+.tef_dist/*
+  
