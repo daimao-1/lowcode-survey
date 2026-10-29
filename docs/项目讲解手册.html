@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>低代码问卷平台 · 项目讲解手册</title>
+<style>
+  :root{
+    --ink:#1f2328; --ink-2:#57606a; --ink-3:#8b949e;
+    --line:#d8dee4; --bg:#ffffff; --bg-2:#f6f8fa; --bg-3:#eef2f5;
+    --accent:#0b6bcb; --accent-soft:#e7f0fb;
+    --warn:#b45309; --warn-soft:#fef6e7;
+    --ok:#1a7f37; --ok-soft:#eaf6ec;
+    --bad:#b42318; --bad-soft:#fdeceb;
+    --code-bg:#f6f8fa;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:15px; line-height:1.78;
+  }
+  .wrap{max-width:960px; margin:0 auto; padding:48px 32px 96px}
+
+  /* 封面 */
+  .cover{border-bottom:1px solid var(--line); padding-bottom:28px; margin-bottom:36px}
+  .cover h1{font-size:30px; margin:0 0 10px; letter-spacing:-.4px}
+  .cover .sub{color:var(--ink-2); font-size:15px; margin:0 0 18px}
+  .meta{display:flex; flex-wrap:wrap; gap:8px}
+  .meta span{
+    font-size:12.5px; color:var(--ink-2); background:var(--bg-2);
+    border:1px solid var(--line); border-radius:999px; padding:3px 11px;
+  }
+
+  /* 目录 */
+  nav.toc{background:var(--bg-2); border:1px solid var(--line); border-radius:10px; padding:20px 24px; margin-bottom:44px}
+  nav.toc p{margin:0 0 10px; font-weight:600; font-size:14px; color:var(--ink-2)}
+  nav.toc ol{margin:0; padding-left:20px; columns:2; column-gap:32px}
+  nav.toc li{margin:5px 0; font-size:14px}
+  nav.toc a{color:var(--accent); text-decoration:none}
+  nav.toc a:hover{text-decoration:underline}
+
+  h2{
+    font-size:22px; margin:56px 0 6px; padding-top:18px;
+    border-top:2px solid var(--ink); letter-spacing:-.2px;
+  }
+  h2 .idx{color:var(--ink-3); font-weight:400; margin-right:10px}
+  h3{font-size:17px; margin:32px 0 8px}
+  h4{font-size:14.5px; margin:22px 0 6px; color:var(--ink-2)}
+  p{margin:10px 0}
+  ul,ol{padding-left:22px} li{margin:6px 0}
+  strong{font-weight:600}
+  code{font-family:"Cascadia Code",Consolas,monospace; font-size:13px; background:var(--bg-3); padding:1px 5px; border-radius:4px}
+  a{color:var(--accent)}
+
+  /* 四段式标签 */
+  .tag{display:inline-block; font-size:12px; font-weight:600; padding:2px 9px; border-radius:5px; margin-right:8px; vertical-align:2px}
+  .tag.q{background:var(--accent-soft); color:var(--accent)}
+  .tag.h{background:var(--ok-soft); color:var(--ok)}
+  .tag.c{background:var(--bg-3); color:var(--ink-2)}
+  .tag.x{background:var(--warn-soft); color:var(--warn)}
+
+  .block{border-left:3px solid var(--line); padding-left:18px; margin:14px 0}
+  .block.q{border-color:var(--accent)}
+  .block.h{border-color:var(--ok)}
+  .block.x{border-color:var(--warn)}
+
+  /* 代码块 */
+  pre{
+    background:var(--code-bg); border:1px solid var(--line); border-radius:8px;
+    padding:14px 16px; overflow-x:auto; margin:12px 0;
+    font-family:"Cascadia Code",Consolas,monospace; font-size:13px; line-height:1.7;
+  }
+  pre code{background:none; padding:0; font-size:13px}
+  .file{
+    display:inline-block; font-size:12px; color:var(--ink-3);
+    font-family:"Cascadia Code",Consolas,monospace; margin-bottom:-4px;
+  }
+  .ln{color:var(--ink-3); user-select:none; display:inline-block; width:2.2em}
+  .cm{color:#6a737d}
+
+  /* 逐句解释表 */
+  table{width:100%; border-collapse:collapse; margin:14px 0; font-size:14px}
+  th,td{border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top}
+  th{background:var(--bg-2); font-weight:600; font-size:13.5px; color:var(--ink-2)}
+  td code{font-size:12.5px}
+
+  /* 提示条 */
+  .note,.warn,.tip{border-radius:8px; padding:12px 16px; margin:16px 0; font-size:14px}
+  .note{background:var(--bg-2); border:1px solid var(--line)}
+  .warn{background:var(--warn-soft); border:1px solid #f0d9ae}
+  .tip{background:var(--accent-soft); border:1px solid #c7ddf6}
+
+  /* 图 */
+  figure{margin:22px 0; text-align:center}
+  figure svg{max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; background:var(--bg)}
+  figcaption{font-size:13px; color:var(--ink-3); margin-top:8px}
+
+  /* 问答 */
+  .qa{border:1px solid var(--line); border-radius:10px; overflow:hidden; margin:14px 0}
+  .qa .question{background:var(--bg-2); padding:11px 16px; font-weight:600; font-size:14.5px}
+  .qa .question::before{content:"Q "; color:var(--accent)}
+  .qa .answer{padding:13px 16px; font-size:14.5px}
+  .qa .answer::before{content:"A "; color:var(--ok); font-weight:600}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0}
+  @media (max-width:720px){ .grid2{grid-template-columns:1fr} nav.toc ol{columns:1} .wrap{padding:28px 18px 64px} }
+
+  .kbd{font-size:12.5px; background:var(--bg-3); border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:1px 6px; font-family:Consolas,monospace}
+
+  @media print{
+    body{font-size:11.5pt}
+    .wrap{max-width:none; padding:0}
+    h2{page-break-after:avoid} pre,figure,.qa{page-break-inside:avoid}
+    nav.toc{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <h1>低代码问卷平台 · 项目讲解手册</h1>
+  <p class="sub">不是代码注释，是"为什么这么做"和"面试怎么答"</p>
+  <div class="meta">
+    <span>Vue 3.5 + TypeScript + Vite 5</span>
+    <span>Pinia 2</span>
+    <span>Element Plus</span>
+    <span>Dexie / IndexedDB</span>
+    <span>Express 4</span>
+    <span>前端为主 · 全栈兜底</span>
+  </div>
+</div>
+
+<nav class="toc">
+  <p>目录</p>
+  <ol>
+    <li><a href="#s0">先说清楚：这份手册怎么用</a></li>
+    <li><a href="#s1">30 秒讲清这个项目</a></li>
+    <li><a href="#s2">全景：一份问卷的数据怎么流动</a></li>
+    <li><a href="#s3">地基：Status 到底是什么</a></li>
+    <li><a href="#s4">加一个题型，为什么只改一处</a></li>
+    <li><a href="#s5">画布：渲染、拖拽、大纲联动</a></li>
+    <li><a href="#s6">属性面板：12 行代码驱动 15 个控件</a></li>
+    <li><a href="#s7">改一个属性，中间发生了什么</a></li>
+    <li><a href="#s8">双 Store：一套逻辑伺候两个场景</a></li>
+    <li><a href="#s9">存进 IndexedDB：组件为什么会丢</a></li>
+    <li><a href="#s10">导出 PDF：为什么不截图</a></li>
+    <li><a href="#s11">发布与答题：后端 4 个接口和降级</a></li>
+    <li><a href="#s12">我踩过的两个真坑</a></li>
+    <li><a href="#s13">面试预演：20 问 20 答</a></li>
+    <li><a href="#s14">不能说的话（简历与讲解红线）</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="s0"><span class="idx">00</span>先说清楚：这份手册怎么用</h2>
+
+<p>这份东西不是给你背的，是给你<b>照着屏幕念</b>的。每一节都是同一个结构：</p>
+
+<div class="grid2">
+  <div class="block q"><span class="tag q">它解决什么问题</span><br>先讲痛点。不先讲痛点直接上代码，听的人不知道你在解决啥。</div>
+  <div class="block c"><span class="tag c">怎么做的</span><br>看图。图比文字快，面试讲不清的时候可以直接画。</div>
+  <div class="block q"><span class="tag q">关键代码</span><br>真实文件、真实行号。每一行后面跟一句白话，不解释语法，只解释"为什么这么写"。</div>
+  <div class="block h"><span class="tag h">怎么答</span><br>面试官大概率会问什么，一句话怎么回。这些是最容易被追问三层的地方。</div>
+</div>
+
+<div class="warn">
+<b>一条使用建议：</b>不要按顺序读。先看第 01、02 节建立全景，然后挑第 13 节里你觉得最虚的那几个问题，倒回去找对应章节。面试前 20 分钟只看第 13 节。
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s1"><span class="idx">01</span>30 秒讲清这个项目</h2>
+
+<p>面试开场必问"介绍一下你的项目"。大多数人死在这 30 秒——说得太细，或者太抽象。</p>
+
+<div class="block q">
+<span class="tag q">电梯陈述（背下来）</span>
+<p style="margin-top:10px">「这是一个可视化问卷搭建平台。核心解决的问题是：<b>让不会写代码的人也能做出结构复杂的问卷</b>，并且做完能直接导出 PDF、发链接给别人答题。</p>
+<p>技术上最值得说的是它的<b>可扩展结构</b>：我做了 30 多种题型，但新增一种题型只需要写一个组件加一个配置函数，<b>画布和属性面板一行都不用改</b>。属性面板是靠数据驱动渲染的，整个面板的代码只有 12 行。</p>
+<p>另外前端做了离线优先——问卷存在浏览器的 IndexedDB 里，断网也能继续编辑，关掉再打开数据还在。」</p>
+</div>
+
+<div class="tip">
+<b>为什么这么讲：</b>先说<b>用户价值</b>（不会代码也能做问卷），再说<b>技术亮点</b>（可扩展性 + 数据驱动），最后补一个<b>工程考量</b>（离线优先）。三段分别对应产品思维、架构能力、工程意识，面试官三个维度都能打上分。
+</div>
+
+<h4>不要这么讲</h4>
+<table>
+<tr><th style="width:46%">❌ 错误说法</th><th>为什么错</th></tr>
+<tr><td>「用 Vue3 + TypeScript + Pinia + Element Plus 做的」</td><td>这是技术栈清单，不是项目介绍。面试官关心你解决了什么问题</td></tr>
+<tr><td>「支持单选、多选、下拉、图片单选、图片多选、文本输入、评分……」</td><td>报菜名。题型数量是结果不是亮点，亮点是"加题型很容易"</td></tr>
+<tr><td>「仿照某某低代码平台做的」</td><td>主动降低评价。真被问到参考来源，说"参考了主流问卷产品的交互"就够了</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="s2"><span class="idx">02</span>全景：一份问卷的数据怎么流动</h2>
+
+<div class="block q"><span class="tag q">它解决什么问题</span>
+<p>低代码编辑器本质上是<b>同一份数据被三个地方同时消费</b>：左边的目录要显示题目、中间画布要渲染控件、右边面板要显示可编辑项。如果三处各自维护一份状态，改一处另外两处就不同步。</p>
+<p>所以整个项目的架构只有一条主线：<b>一份 <code>coms</code> 数组是唯一数据源，三个面板都是它的只读投影</b>，所有修改都从右边面板发起、写回数组、再驱动三处重渲染。</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Microsoft YaHei,sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#57606a"/>
+    </marker>
+    <marker id="arr2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#0b6bcb"/>
+    </marker>
+  </defs>
+
+  <!-- 唯一数据源 -->
+  <rect x="330" y="24" width="240" height="66" rx="9" fill="#e7f0fb" stroke="#0b6bcb" stroke-width="1.6"/>
+  <text x="450" y="50" text-anchor="middle" font-size="14" font-weight="700" fill="#0b6bcb">coms : Status[]</text>
+  <text x="450" y="72" text-anchor="middle" font-size="12" fill="#57606a">唯一数据源（Pinia / EditorStore）</text>
+
+  <!-- 三个消费者 -->
+  <rect x="60" y="170" width="200" height="62" rx="8" fill="#f6f8fa" stroke="#d8dee4" stroke-width="1.3"/>
+  <text x="160" y="196" text-anchor="middle" font-size="13" font-weight="600" fill="#1f2328">左：大纲 Outline</text>
+  <text x="160" y="216" text-anchor="middle" font-size="11.5" fill="#8b949e">只读题目序号 + 标题</text>
+
+  <rect x="350" y="170" width="200" height="62" rx="8" fill="#f6f8fa" stroke="#d8dee4" stroke-width="1.3"/>
+  <text x="450" y="196" text-anchor="middle" font-size="13" font-weight="600" fill="#1f2328">中：画布 Center</text>
+  <text x="450" y="216" text-anchor="middle" font-size="11.5" fill="#8b949e">按 type 渲染真实控件</text>
+
+  <rect x="640" y="170" width="200" height="62" rx="8" fill="#f6f8fa" stroke="#d8dee4" stroke-width="1.3"/>
+  <text x="740" y="196" text-anchor="middle" font-size="13" font-weight="600" fill="#1f2328">右：属性面板</text>
+  <text x="740" y="216" text-anchor="middle" font-size="11.5" fill="#8b949e">按 status 渲染编辑控件</text>
+
+  <line x1="400" y1="92" x2="170" y2="166" stroke="#57606a" stroke-width="1.3" marker-end="url(#arr)"/>
+  <line x1="450" y1="92" x2="450" y2="166" stroke="#57606a" stroke-width="1.3" marker-end="url(#arr)"/>
+  <line x1="500" y1="92" x2="730" y2="166" stroke="#57606a" stroke-width="1.3" marker-end="url(#arr)"/>
+
+  <!-- 修改回路 -->
+  <rect x="300" y="300" width="300" height="58" rx="8" fill="#eaf6ec" stroke="#1a7f37" stroke-width="1.4"/>
+  <text x="450" y="324" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a7f37">updateStatus → dispatch → action</text>
+  <text x="450" y="344" text-anchor="middle" font-size="11.5" fill="#3d7a4a">修改只从这里进来，统一出口</text>
+
+  <line x1="720" y1="236" x2="566" y2="298" stroke="#0b6bcb" stroke-width="1.6" marker-end="url(#arr2)"/>
+
+  <!-- 写回：绕页面右侧回到 coms，不穿过中间方框 -->
+  <path d="M600 329 H872 V57 H578" fill="none" stroke="#0b6bcb" stroke-width="1.6" marker-end="url(#arr2)"/>
+  <text x="700" y="320" text-anchor="middle" font-size="11.5" fill="#0b6bcb">写回同一个数组</text>
+</svg>
+<figcaption>图 1 · 数据单向流动：coms 是唯一真相，三个面板都是投影，修改统一从右侧回流</figcaption>
+</figure>
+
+<div class="block c"><span class="tag c">这张图能顶三分钟</span>
+<p>面试时如果白板讲架构，就画这个。三个框一画，一句"<b>唯一数据源，三个只读投影，修改统一出口</b>"，架构就讲完了。比说一堆技术名词有效得多。</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s3"><span class="idx">03</span>地基：Status 到底是什么</h2>
+
+<div class="block q"><span class="tag q">它解决什么问题</span>
+<p>问卷里每一道题都长得不一样：单选题有选项、评分题有星星、文本题有输入框。但它们又共享一堆东西——标题、描述、对齐方式、字号、加粗、颜色。</p>
+<p>如果给每种题型写一个独立的数据结构和一套属性面板，30 种题型就是 30 套代码。所以这里做了一个抽象：<b>每道题 = 一个组件 + 一份"它有哪些可配置项"的描述</b>。这份描述就是 <code>status</code>。</p>
+</div>
+
+<span class="file">src/types/common.ts</span>
+<pre><code><span class="ln">7</span>export interface Status {
+<span class="ln">8</span>  type: VueComType                       <span class="cm">// 真正渲染的 Vue 组件</span>
+<span class="ln">9</span>  name: Material                        <span class="cm">// 字符串标识，如 'single-select'</span>
+<span class="ln">10</span> id: string                            <span class="cm">// 唯一 id，拖拽排序靠它做 key</span>
+<span class="ln">11</span> status: {
+<span class="ln">12</span>   [key: string]: TextProps | OptionsProps
+<span class="ln">13</span> }
+<span class="ln">14</span>}</code></pre>
+
+<table>
+<tr><th style="width:22%">字段</th><th>白话</th></tr>
+<tr><td><code>type</code></td><td>这是"渲染器"。画布上 <code>&lt;component :is="type"&gt;</code> 直接把它渲染成单选/多选/输入框。</td></tr>
+<tr><td><code>name</code></td><td>这是"身份证"。因为组件对象没法存进数据库、也没法序列化，所以另存一个字符串来标记"我是哪种题"。<b>后面所有麻烦都出在这里。</b></td></tr>
+<tr><td><code>id</code></td><td>拖拽时 Vue 需要稳定的 key。用数组下标当 key 会导致拖动后组件状态错乱。</td></tr>
+<tr><td><code>status</code></td><td>一个对象，每个 key 是一个可配置项。它不只是"值"，还自带"用哪个控件来编辑我"。</td></tr>
+</table>
+
+<h3>status 里每一项长什么样</h3>
+
+<span class="file">src/types/editProps.ts</span>
+<pre><code><span class="ln">3</span>export interface BaseProps {
+<span class="ln">4</span>   id: string
+<span class="ln">5</span>   isShow: boolean        <span class="cm">// 这一项要不要显示在属性面板里</span>
+<span class="ln">6</span>   editCom: VueComType    <span class="cm">// 用哪个组件来编辑它 ← 关键设计</span>
+<span class="ln">7</span>   name: string
+<span class="ln">8</span> }</code></pre>
+
+<div class="tip">
+<b>这一行是整个项目最值钱的设计：</b><code>editCom</code> 把"数据"和"编辑它的界面"绑在了一起。所以属性面板不需要知道"标题该用什么输入框、字号该用什么下拉"，它只要遍历 status，把每一项交给该项自带的 <code>editCom</code> 去渲染就行。
+</div>
+
+<figure>
+<svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Microsoft YaHei,sans-serif">
+  <!-- 外层 -->
+  <rect x="24" y="20" width="852" height="296" rx="10" fill="#fbfcfd" stroke="#d8dee4" stroke-width="1.4"/>
+  <text x="46" y="46" font-size="13.5" font-weight="700" fill="#1f2328">一道单选题 · Status</text>
+  <text x="46" y="66" font-size="12" fill="#8b949e">type = SingleSelect 组件　name = 'single-select'　id = uuid</text>
+
+  <!-- 三列 status 项 -->
+  <g font-size="11.5">
+    <rect x="46" y="86" width="250" height="96" rx="7" fill="#e7f0fb" stroke="#0b6bcb" stroke-width="1.2"/>
+    <text x="60" y="107" font-size="12.5" font-weight="700" fill="#0b6bcb">status.title</text>
+    <text x="60" y="128" fill="#1f2328">status: '你目前最想去的城市是？'</text>
+    <text x="60" y="148" fill="#57606a">editCom: TitleEditor</text>
+    <text x="60" y="168" fill="#8b949e">→ 渲染成一个输入框</text>
+
+    <rect x="316" y="86" width="250" height="96" rx="7" fill="#eaf6ec" stroke="#1a7f37" stroke-width="1.2"/>
+    <text x="330" y="107" font-size="12.5" font-weight="700" fill="#1a7f37">status.options</text>
+    <text x="330" y="128" fill="#1f2328">status: ['选项1','选项2']</text>
+    <text x="330" y="148" fill="#57606a">editCom: OptionsEditor</text>
+    <text x="330" y="168" fill="#8b949e">→ 渲染成可增删的列表</text>
+
+    <rect x="586" y="86" width="266" height="96" rx="7" fill="#fef6e7" stroke="#b45309" stroke-width="1.2"/>
+    <text x="600" y="107" font-size="12.5" font-weight="700" fill="#b45309">status.titleSize</text>
+    <text x="600" y="128" fill="#1f2328">currentStatus: 0</text>
+    <text x="600" y="148" fill="#57606a">status: ['22','20','18']</text>
+    <text x="600" y="168" fill="#8b949e">→ SizeEditor 渲染成下拉</text>
+  </g>
+
+  <line x1="46" y1="204" x2="852" y2="204" stroke="#d8dee4" stroke-width="1" stroke-dasharray="4 4"/>
+  <text x="46" y="228" font-size="12" fill="#57606a">注意 titleSize 和 descSize <tspan font-weight="700">共用同一个 SizeEditor</tspan>：选项值完全一样，只是作用对象不同。</text>
+  <text x="46" y="250" font-size="12" fill="#57606a">所以编辑组件不能"自己知道"在改谁 —— 必须由父级把 key（'titleSize' / 'descSize'）传进去。</text>
+  <text x="46" y="278" font-size="12.5" font-weight="700" fill="#b45309">这就是下一节 &lt;component :config-key="key"&gt; 那一行必须存在的理由。</text>
+</svg>
+<figcaption>图 2 · Status 的解剖：每个配置项自带"值"和"用谁编辑"</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2 id="s4"><span class="idx">04</span>加一个题型，为什么只改一处</h2>
+
+<div class="block q"><span class="tag q">它解决什么问题</span>
+<p>低代码编辑器最大的维护成本不是写功能，是<b>加功能</b>。如果加一种题型要动画布、动属性面板、动大纲、动导出白名单……加五种之后代码就没人敢碰了。</p>
+<p>这个项目的目标是把"加题型"收敛成三个动作：<b>写组件 → 写工厂 → 注册映射</b>。别的都不用动。</p>
+</div>
+
+<h3>动作一：写一个工厂，描述这道题的默认长相</h3>
+
+<span class="file">src/configs/defaultStatus/SingleSelect.ts（节选）</span>
+<pre><code><span class="ln">14</span>export default function (): Status {
+<span class="ln">15</span>  return {
+<span class="ln">16</span>    type: markRaw(SingleSelect),
+<span class="ln">17</span>    name: 'single-select',
+<span class="ln">18</span>    id: uuidv4(),
+<span class="ln">19</span>    status: {
+<span class="ln">20</span>      title: { id: uuidv4(), status: '默认单选题标题',
+<span class="ln">21</span>               isShow: true, name: 'title-editor', editCom: markRaw(TitleEditor) },
+<span class="ln">22</span>      options: { id: uuidv4(), currentStatus: 0,
+<span class="ln">23</span>                 status: ['选项1','选项2'],
+<span class="ln">24</span>                 editCom: markRaw(OptionsEditor), ... },
+<span class="ln">25</span>      <span class="cm">// …position / titleSize / descSize / titleWeight / titleColor 等</span>
+<span class="ln">26</span>    },
+<span class="ln">27</span>  }
+<span class="ln">28</span>}</code></pre>
+
+<table>
+<tr><th style="width:24%">写法</th><th>为什么非得这么写</th></tr>
+<tr><td><code>markRaw(...)</code></td><td>不加的话 Vue 会把组件对象变成响应式代理。组件对象被 proxy 包一层之后问题很多：性能白掉、<code>===</code> 比较失效、拖拽时可能报递归更新。<b>凡是"不会变的对象"都该 markRaw。</b></td></tr>
+<tr><td>函数返回新对象</td><td>每拖一次要一道新题。如果导出的是常量对象，两次拖拽会共享同一个引用，改一个另一个跟着变。</td></tr>
+<tr><td>每个子项都有 <code>id: uuidv4()</code></td><td>属性面板 <code>v-for</code> 需要 key。用 index 当 key，增减选项时会复用到错误的 DOM。</td></tr>
+</table>
+
+<h3>动作二：注册到映射表</h3>
+
+<span class="file">src/configs/componentMap.ts</span>
+<pre><code><span class="ln">27</span>export const componentMap: ComponentMap = {
+<span class="ln">28</span>  <span class="cm">// 业务组件（题目）</span>
+<span class="ln">29</span>  'single-select': markRaw(SingleSelect),
+<span class="ln">30</span>  'multi-select': markRaw(MultiSelect),
+<span class="ln">31</span>  'text-input': markRaw(TextInput),
+<span class="ln">32</span>  'rate-score': markRaw(RateScore),
+<span class="ln">33</span>  <span class="cm">// …共 25 个题型名 + 12 个编辑组件</span>
+<span class="ln">34</span>  <span class="cm">// 编辑组件（属性面板用）</span>
+<span class="ln">35</span>  'title-editor': markRaw(TitleEditor),
+<span class="ln">36</span>  'options-editor': markRaw(OptionsEditor),
+<span class="ln">37</span>}</code></pre>
+
+<p>这张表有两个用途，很关键，分开记：</p>
+<ol>
+<li><b>按 name 找组件</b>——从 IndexedDB 读回来时，靠它把字符串 <code>'single-select'</code> 还原成真正的组件对象。</li>
+<li><b>按 name 找编辑控件</b>——属性面板渲染 <code>status.title</code> 时，用它的 <code>editCom</code> 字段，而 <code>editCom</code> 本身也是从这个表里取的。</li>
+</ol>
+
+<h3>动作三（可选）：加进组件市场分组</h3>
+<p><code>src/configs/SurveyGroupConfig.ts</code> 里决定它出现在左侧目录的哪个分组、显示什么名字。这一步纯展示，不影响功能。</p>
+
+<div class="block h"><span class="tag h">怎么答</span>
+<p>如果面试官问"你的可扩展性体现在哪"，<b>不要只说"我做了 30 种题型"</b>，要说：</p>
+<p>「新加一种题型，我只写一个组件和一个配置工厂，然后在 componentMap 里加一行。画布、属性面板、大纲、导出白名单都不用改——因为画布是按 <code>type</code> 动态渲染的，属性面板是按 <code>status</code> 里的 <code>editCom</code> 动态渲染的，两者都不认识具体题型。」</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s5"><span class="idx">05</span>画布：渲染、拖拽、大纲联动</h2>
+
+<div class="block q"><span class="tag q">它解决什么问题</span>
+<p>画布要同时满足三件事：按顺序渲染每道题、能拖动排序、拖动时左边大纲要跟着动、点大纲时画布要滚到对应位置。</p>
+<p>难点在<b>双向同步</b>：如果画布和大纲各自维护一个数组，拖动画布后大纲就错位了。</p>
+</div>
+
+<span class="file">src/views/EditorView/Center.vue</span>
+<pre><code><span class="ln">3</span>&lt;draggable v-model="store.coms" item-key="index" @start="dragstart"&gt;
+<span class="ln">4</span>  &lt;template #item="{ element, index }"&gt;
+<span class="ln">11</span>    &lt;div :key="element.id" @click="clickHandle(index)"&gt;
+<span class="ln">14</span>      &lt;component :is="element.type" :status="element.status" /&gt;
+<span class="ln">15</span>    &lt;/div&gt;
+<span class="ln">16</span>  &lt;/template&gt;
+<span class="ln">17</span>&lt;/draggable&gt;</code></pre>
+
+<table>
+<tr><th style="width:26%">这一行在干嘛</th><th>白话</th></tr>
+<tr><td><code>v-model="store.coms"</code></td><td><b>不是</b>绑一个本地数组，而是直接绑 store 里的数组。所以拖动结束的一瞬间，store 里的顺序就变了 —— 大纲读的是同一个数组，自然同步，不需要任何 watch 或事件通知。<b>这就是"唯一数据源"带来的好处，也是为什么不能各自维护一份。</b></td></tr>
+<tr><td><code>item-key="index"</code></td><td>vuedraggable 内部用的标识字段。注意真正的 DOM key 是下一行的 <code>element.id</code>。</td></tr>
+<tr><td><code>:key="element.id"</code></td><td>Vue 靠 key 判断"这是同一个组件还是新组件"。用数组下标当 key，拖到第二位后原本第二位那道题的组件实例会被复用，导致输入框里的光标、内部状态错乱。</td></tr>
+<tr><td><code>:is="element.type"</code></td><td>动态组件。画布<b>完全不认识</b> single-select 还是 rate-score，它只知道"这有个 type 字段，把它渲染出来"。</td></tr>
+<tr><td><code>:status="element.status"</code></td><td>把整份配置传给子组件。子组件内部自己决定怎么用（标题放哪、选项怎么排、颜色取哪个）。</td></tr>
+</table>
+
+<h3>大纲为什么能跟着动</h3>
+
+<span class="file">src/views/EditorView/LeftSide/Outline.vue</span>
+<pre><code><span class="ln">2</span>&lt;draggable v-model="store.coms" item-key="index"&gt;
+<span class="ln">9</span>  &lt;div v-show="isSurveyComName(element.name)"&gt;
+<span class="ln">11</span>    {{ serialNum[index] }}. {{ element.status.title.status }}
+<span class="ln">12</span>  &lt;/div&gt;
+<span class="ln">13</span>&lt;/draggable&gt;</code></pre>
+
+<p>注意它也是 <code>v-model="store.coms"</code> —— <b>同一份数组，绑了两次</b>。所以：</p>
+<ul>
+<li>在画布拖动 → 数组变了 → 大纲重渲染 ✅</li>
+<li>在大纲拖动 → 数组变了 → 画布重渲染 ✅</li>
+</ul>
+<p>不需要写任何同步代码。</p>
+
+<div class="block x"><span class="tag x">两个容易讲错的地方</span>
+<p><b>① <code>v-show</code> 不是 <code>v-if</code></b>：大纲里"备注说明"这类非题目组件不显示序号，但它在数组里占位。用 <code>v-show</code> 是为了保持 index 与数组一一对应；换成 <code>v-if</code> 后 DOM 里的位置就对不上了。</p>
+<p><b>② 序号是算出来的，不是存的</b>：题目编号来自 <code>useSurveyNo(store.coms)</code>，它遍历数组，只在"是题目类型"的位置递增计数器，非题目组件返回 <code>null</code>。所以删掉中间一道题，后面编号自动前移，不用手动维护。</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s6"><span class="idx">06</span>属性面板：12 行代码驱动 15 个控件</h2>
+
+<div class="block q"><span class="tag q">它解决什么问题</span>
+<p>单选、多选、评分、日期……每种题的属性面板长得不一样。如果给每种题写一个面板组件，30 种题型就是 30 个面板，其中 80% 的控件是重复的。</p>
+<p>这里换了个思路：<b>不给题型写面板，让题型自己声明"我有哪些属性、每项用谁编辑"</b>。面板只负责遍历。</p>
+</div>
+
+<p>整个面板的全部渲染逻辑：</p>
+
+<span class="file">src/components/SurveyComs/EditItems/EditPannel.vue</span>
+<pre><code><span class="ln">3</span>&lt;div v-for="(item, key) in com.status" :key="item.id"&gt;
+<span class="ln">5</span>  &lt;component
+<span class="ln">6</span>    v-if="item.isShow"
+<span class="ln">7</span>    :is="item.editCom"
+<span class="ln">8</span>    :config-key="key"
+<span class="ln">9</span>    v-bind="item"
+<span class="ln">10</span>  /&gt;
+<span class="ln">11</span>&lt;/div&gt;</code></pre>
+
+<table>
+<tr><th style="width:20%">写法</th><th>白话</th></tr>
+<tr><td><code>v-for="(item, key) in com.status"</code></td><td>遍历这道题的所有配置项。注意拿到的是 <code>key</code>（'title' / 'titleSize' / 'options'…），不是下标。</td></tr>
+<tr><td><code>v-if="item.isShow"</code></td><td>有些属性要按条件隐藏。比如文本题切换成"多行"时，会把标题/描述等其他配置项整体隐藏（<code>dispatch.ts</code> 的 <code>setType</code> 里一次性翻转所有 <code>isShow</code>）。</td></tr>
+<tr><td><code>:is="item.editCom"</code></td><td>这一项自己带着"用谁编辑我"。面板不认识任何具体控件。</td></tr>
+<tr><td><code>:config-key="key"</code></td><td><b>必须传，别漏。</b>因为 titleSize 和 descSize 共用同一个 SizeEditor，控件必须知道"我在改的是哪一个"。这就是图 2 里标红的那句。</td></tr>
+<tr><td><code>v-bind="item"</code></td><td>把整项（含 status / currentStatus 等）平铺成 props 传下去。省掉逐个绑定。</td></tr>
+</table>
+
+<div class="block h"><span class="tag h">这段是全场最强的一句</span>
+<p>面试时可以说：「属性面板我没有按题型写，我做的是<b>数据驱动</b>——每道题自己声明有哪些可配置项、每项用哪个编辑控件，面板只做一次遍历。所以 30 种题型共用同一套面板代码，面板文件总共 12 行。」</p>
+<p>如果被追问"那新增一种编辑控件怎么办"：答"写一个组件，在 <code>componentMap</code> 里注册，然后在题型的工厂里把某一项的 <code>editCom</code> 指向它，面板不用改"。</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s7"><span class="idx">07</span>改一个属性，中间发生了什么</h2>
+
+<div class="block q"><span class="tag q">它解决什么问题</span>
+<p>属性面板里有输入框、下拉、颜色选择器、增删按钮……如果每个控件都直接去改 store，就得写十几种改法，而且类型判断散落各处。</p>
+<p>这里的做法是<b>收口</b>：所有控件都只发一个 <code>updateStatus(configKey, payload)</code>，由 <code>dispatch</code> 一处做类型分派，再调用对应的 action。</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 900 250" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Microsoft YaHei,sans-serif">
+  <defs><marker id="a3" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#57606a"/></marker></defs>
+  <g font-size="12">
+    <rect x="18" y="88" width="150" height="64" rx="8" fill="#f6f8fa" stroke="#d8dee4"/>
+    <text x="93" y="114" text-anchor="middle" font-weight="600">编辑控件</text>
+    <text x="93" y="134" text-anchor="middle" font-size="11" fill="#8b949e">TitleEditor 等</text>
+
+    <rect x="200" y="80" width="176" height="80" rx="8" fill="#e7f0fb" stroke="#0b6bcb"/>
+    <text x="288" y="106" text-anchor="middle" font-weight="600" fill="#0b6bcb">updateStatus()</text>
+    <text x="288" y="126" text-anchor="middle" font-size="11" fill="#57606a">(configKey, payload)</text>
+    <text x="288" y="146" text-anchor="middle" font-size="11" fill="#8b949e">Index.vue 里 provide</text>
+
+    <rect x="408" y="80" width="176" height="80" rx="8" fill="#fef6e7" stroke="#b45309"/>
+    <text x="496" y="106" text-anchor="middle" font-weight="600" fill="#b45309">dispatchStatus()</text>
+    <text x="496" y="126" text-anchor="middle" font-size="11" fill="#57606a">switch(configKey)</text>
+    <text x="496" y="146" text-anchor="middle" font-size="11" fill="#8b949e">类型守卫 + 分派</text>
+
+    <rect x="616" y="80" width="130" height="80" rx="8" fill="#eaf6ec" stroke="#1a7f37"/>
+    <text x="681" y="106" text-anchor="middle" font-weight="600" fill="#1a7f37">actions</text>
+    <text x="681" y="126" text-anchor="middle" font-size="11" fill="#57606a">setTextStatus</text>
+    <text x="681" y="146" text-anchor="middle" font-size="11" fill="#57606a">addOption …</text>
+
+    <rect x="778" y="80" width="106" height="80" rx="8" fill="#f6f8fa" stroke="#d8dee4"/>
+    <text x="831" y="112" text-anchor="middle" font-weight="600">store</text>
+    <text x="831" y="132" text-anchor="middle" font-size="11" fill="#8b949e">coms 变了</text>
+    <text x="831" y="150" text-anchor="middle" font-size="11" fill="#0b6bcb">→ 重渲染</text>
+
+    <line x1="170" y1="120" x2="196" y2="120" stroke="#57606a" stroke-width="1.4" marker-end="url(#a3)"/>
+    <line x1="378" y1="120" x2="404" y2="120" stroke="#57606a" stroke-width="1.4" marker-end="url(#a3)"/>
+    <line x1="586" y1="120" x2="612" y2="120" stroke="#57606a" stroke-width="1.4" marker-end="url(#a3)"/>
+    <line x1="748" y1="120" x2="774" y2="120" stroke="#57606a" stroke-width="1.4" marker-end="url(#a3)"/>
+
+    <path d="M831 160 Q831 205 93 205 Q60 205 60 156" fill="none" stroke="#0b6bcb" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#a3)"/>
+    <text x="450" y="228" text-anchor="middle" font-size="11.5" fill="#0b6bcb">Vue 响应式：store 变化 → 画布 / 大纲 / 面板同时更新</text>
+  </g>
+</svg>
+<figcaption>图 3 · 一次属性修改的完整链路：控件 → updateStatus → dispatch → action → store → 三处重渲染</figcaption>
+</figure>
+
+<span class="file">src/views/EditorView/Index.vue</span>
+<pre><code><span class="ln">50</span>const updateStatus: UpdateStatus = (configKey, payload, isShowChange) =&gt; {
+<span class="ln">55</span>  if (store.currentComponentIndex === -1) {
+<span class="ln">57</span>    ElMessage({ message: '请先将组件处于编辑状态', type: 'warning' })
+<span class="ln">59</span>    return
+<span class="ln">60</span>  }
+<span class="ln">63</span>  const status = store.coms[store.currentComponentIndex].status
+<span class="ln">66</span>  dispatchStatus(store, status, configKey, payload, isShowChange)
+<span class="ln">67</span>}
+<span class="ln">68</span>provide('updateStatus', updateStatus)</code></pre>
+
+<p><b>白话：</b>这个函数是<b>整个编辑器唯一允许改数据的地方</b>。它做三件事：检查有没有选中组件（没选中就提示并拒绝，避免改到不存在的题）、拿到当前选中题的 status、交给 dispatch。</p>
+<p>最后一行 <code>provide</code> 把它注入下去，任何层级的子组件都能 <code>inject</code> 拿到它，<b>不用一层层 props 传</b>。这就是"收口"的物理实现。</p>
+
+<h3>dispatch 在干什么</h3>
+
+<span class="file">src/stores/dispatch.ts（节选）</span>
+<pre><code><span class="ln">27</span>switch (configKey) {
+<span class="ln">39</span>  case 'title':
+<span class="ln">40</span>  case 'desc':
+<span class="ln">41</span>    if (typeof payload !== 'string') { console.error(...); return }
+<span class="ln">45</span>    store.setTextStatus(status[configKey], payload)
+<span class="ln">46</span>    break
+<span class="ln">47</span>  case 'options':
+<span class="ln">49</span>    if (typeof payload === 'number')      store.removeOption(...)   <span class="cm">// 删选项</span>
+<span class="ln">56</span>    else if (typeof payload === 'boolean') store.setUse(...)        <span class="cm">// 启用/禁用</span>
+<span class="ln">58</span>    else if (isOptionsStatusByIndexPayload(payload)) store.setOptionsStatusByIndex(...)
+<span class="ln">63</span>    else                                  store.addOption(...)     <span class="cm">// 加选项</span>
+<span class="ln">66</span>    break
+<span class="ln">106</span>  default: console.warn(`Unknown configKey: ${configKey}`)
+<span class="ln">109</span>}</code></pre>
+
+<div class="block x"><span class="tag x">这段是面试的高价值点</span>
+<p>注意 <code>options</code> 这个分支：<b>同一个 configKey，靠 payload 的类型区分意图</b>——传 number 是删选项、传 boolean 是切换启用、传带 index 的对象是改某个选项的文字、传 undefined 是新增。</p>
+<p>为什么这么设计？因为属性面板里"选项"这一块有四种操作（增、删、改文字、启用禁用），但它们改的是同一个字段。与其开四个入口，不如一个入口靠载荷类型分派。</p>
+<p>被问"为什么不给每种操作单独写一个方法"时，答：「面板和 store 之间只保留一个通道，减少耦合面，也让"未选中组件"这类前置校验只需要写一处。」</p>
+</div>
+
+<p>另外每个分支开头都有 <code>typeof payload !== 'xxx'</code> 的判断。这不是啰嗦——TypeScript 的类型在运行时<b>全部消失</b>，这些判断是运行时的最后一道防线。配合 <code>types/</code> 里那一堆 <code>isXxx()</code> 类型谓词函数，才既让编译器满意、又让运行时安全。</p>
+
+<!-- ============================================================ -->
+<h2 id="s8"><span class="idx">08</span>双 Store：一套逻辑伺候两个场景</h2>
+
+<div class="block q"><span class="tag q">它解决什么问题</span>
+<p>项目有两个场景：<b>编辑器</b>（一堆题排成一条线）和<b>组件市场</b>（左目录选一种题型，右边单独试玩一个）。</p>
+<p>这两个场景的交互逻辑是<b>一模一样</b>的：改标题、加删选项、调字号颜色……唯一区别是编辑器操作"数组里的某一项"，市场操作"当前选中的那一个题型"。</p>
+<p>如果写两套，改一个 bug 要改两处，而且两边行为会慢慢跑偏。</p>
+</div>
+
+<span class="file">src/stores/useStore.ts（全文 19 行）</span>
+<pre><code><span class="ln">6</span>export default function () {
+<span class="ln">8</span>  const activeView = localStorage.getItem('activeView')
+<span class="ln">9</span>  switch (activeView) {
+<span class="ln">10</span>    case 'materials': return useMaterialStore()
+<span class="ln">14</span>    case 'editor':    return useEditorStore()
+<span class="ln">18</span>  }
+<span class="ln">19</span>}</code></pre>
+
+<p><b>白话：</b>这是一个"门卫"。组件不直接 <code>useEditorStore()</code> 或 <code>useMaterialStore()</code>，而是调 <code>useStore()</code>，由它根据当前处在哪个视图，把对应的 store 交出去。</p>
+<p>关键在于<b>两个 store 实现了同一套 Actions 接口</b>：</p>
+
+<span class="file">src/types/store.ts</span>
+<pre><code><span class="ln">30</span>export interface Actions {          <span class="cm">// 共用的一套动作</span>
+<span class="ln">31</span>  addOption, removeOption, setPosition, setSize,
+<span class="ln">32</span>  setWeight, setItalic, setColor, setTextType,
+<span class="ln">33</span>  setTextStatus, setUse, ...
+<span class="ln">36</span>}
+<span class="ln">38</span>export interface MaterialStore extends Actions { ... }
+<span class="ln">52</span>export interface EditorStore  extends Actions { ... }</code></pre>
+
+<p>所以 <code>dispatchStatus(store, ...)</code> 的参数类型是 <code>EditorStore | MaterialStore</code>——<b>它在两个场景下是同一份代码</b>。</p>
+
+<div class="block h"><span class="tag h">怎么答</span>
+<p>「编辑器和组件市场我用了两个 Pinia store，但它们共用同一套 actions 接口，通过一个 <code>useStore()</code> 按当前视图动态返回实例。这样 dispatch 那层的分派逻辑只写了一份，两个场景行为永远一致。」</p>
+</div>
+
+<div class="warn">
+<b>讲的时候必须补一句实话：</b>这套设计有个已知弱点——依赖 <code>localStorage.activeView</code> 这个隐式状态，而且 <code>useStore()</code> 在没有匹配值时返回 <code>undefined</code>。更稳的做法是把视图类型放进路由 meta 或用 provide/inject，而不是读 localStorage。</p>
+<p style="margin-bottom:0"><b>主动说出自己方案的弱点，比被面试官挑出来强得多。</b>这句话说出来，评价通常是"这人有代码审视能力"。</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s9"><span class="idx">09</span>存进 IndexedDB：组件为什么会丢</h2>
+
+<div class="block q"><span class="tag q">它解决什么问题</span>
+<p>需求是"关掉页面再打开，我的问卷还在"。所以要把 <code>coms</code> 存到浏览器本地。</p>
+<p>但 <code>Status</code> 里的 <code>type</code> 和 <code>status[*].editCom</code> 都是<b>Vue 组件对象</b>。而 IndexedDB 存数据用的是<b>结构化克隆</b>（structured clone），这套算法的规则是：<b>函数、DOM 节点、class 实例一律不能克隆，遇到就抛 DataCloneError</b>。</p>
+<p>所以直接存会炸。</p>
+</div>
+
+<h3>解法：存之前把组件丢掉，读的时候按 name 补回来</h3>
+
+<figure>
+<svg viewBox="0 0 900 330" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Microsoft YaHei,sans-serif">
+  <defs><marker id="a4" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#57606a"/></marker></defs>
+
+  <rect x="20" y="30" width="250" height="128" rx="9" fill="#f6f8fa" stroke="#d8dee4"/>
+  <text x="145" y="54" text-anchor="middle" font-size="12.5" font-weight="700">内存里的对象</text>
+  <text x="36" y="78" font-size="11.5" fill="#1f2328">type: [Vue 组件对象]</text>
+  <text x="36" y="98" font-size="11.5" fill="#1f2328">name: 'single-select'</text>
+  <text x="36" y="118" font-size="11.5" fill="#1f2328">status.title.status: '…'</text>
+  <text x="36" y="138" font-size="11.5" fill="#b42318">status.title.editCom: [组件]</text>
+
+  <line x1="274" y1="94" x2="330" y2="94" stroke="#57606a" stroke-width="1.5" marker-end="url(#a4)"/>
+  <text x="302" y="80" text-anchor="middle" font-size="11" fill="#57606a">JSON</text>
+  <text x="302" y="114" text-anchor="middle" font-size="11" fill="#57606a">stringify</text>
+
+  <rect x="336" y="30" width="230" height="128" rx="9" fill="#eaf6ec" stroke="#1a7f37"/>
+  <text x="451" y="54" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1a7f37">落盘后（IndexedDB）</text>
+  <text x="352" y="78" font-size="11.5" fill="#8b949e">type: {}  ← 变成空对象</text>
+  <text x="352" y="98" font-size="11.5" font-weight="600" fill="#1f2328">name: 'single-select' ← 唯一线索</text>
+  <text x="352" y="118" font-size="11.5" fill="#1f2328">status.title.status: '…'</text>
+  <text x="352" y="138" font-size="11.5" fill="#8b949e">editCom: 消失</text>
+
+  <line x1="570" y1="94" x2="626" y2="94" stroke="#57606a" stroke-width="1.5" marker-end="url(#a4)"/>
+  <text x="598" y="80" text-anchor="middle" font-size="11" fill="#57606a">restore</text>
+  <text x="598" y="114" text-anchor="middle" font-size="11" fill="#57606a">Component</text>
+  <text x="598" y="128" text-anchor="middle" font-size="11" fill="#57606a">Status</text>
+
+  <rect x="632" y="30" width="248" height="128" rx="9" fill="#e7f0fb" stroke="#0b6bcb"/>
+  <text x="756" y="54" text-anchor="middle" font-size="12.5" font-weight="700" fill="#0b6bcb">读回来（恢复后）</text>
+  <text x="648" y="78" font-size="11.5" fill="#1f2328">type = componentMap[name]</text>
+  <text x="648" y="98" font-size="11.5" fill="#1f2328">editCom = componentMap[</text>
+  <text x="648" y="114" font-size="11.5" fill="#1f2328">  item.name]</text>
+  <text x="648" y="140" font-size="11.5" fill="#1a7f37">→ 又能正常渲染了</text>
+
+  <rect x="120" y="196" width="660" height="96" rx="9" fill="#fef6e7" stroke="#b45309"/>
+  <text x="450" y="222" text-anchor="middle" font-size="12.5" font-weight="700" fill="#b45309">两个必须记住的细节</text>
+  <text x="145" y="246" font-size="11.5" fill="#1f2328">① type 会被序列化成空对象 <tspan font-family="Consolas" font-weight="700">{}</tspan>，不是删掉 —— 还原时必须无条件覆盖</text>
+  <text x="145" y="270" font-size="11.5" fill="#1f2328">② editCom 恢复要用 <tspan font-family="Consolas">status[key].name</tspan>（如 'title-editor'），不是 type.name</text>
+</svg>
+<figcaption>图 4 · 组件对象与数据库之间的往返：JSON 丢掉的东西，靠 name 查表补回来</figcaption>
+</figure>
+
+<span class="file">src/utils/dboperate.ts（保存）</span>
+<pre><code><span class="ln">23</span>const surveyToSave = {
+<span class="ln">24</span>  createDate: ..., updateDate: ...,
+<span class="ln">25</span>  title: value,
+<span class="ln">26</span>  surveyCount: store.surveyCount,
+<span class="ln">27</span>  coms: JSON.parse(JSON.stringify(store.coms)),   <span class="cm">// 关键这一行</span>
+<span class="ln">28</span>}</code></pre>
+
+<p><b>白话：</b>先 <code>stringify</code> 再 <code>parse</code>，等于"深拷贝一份但是只保留能被 JSON 表达的东西"。组件对象在 stringify 时被丢掉（或变成 <code>{}</code>），存进去的就只剩纯数据。</p>
+
+<span class="file">src/utils/index.ts（还原）</span>
+<pre><code><span class="ln">107</span>export const restoreComponentStatus = (coms: Status[]) =&gt; {
+<span class="ln">108</span>  coms.forEach((com) =&gt; {
+<span class="ln">109</span>    com.type = componentMap[com.name]              <span class="cm">// 按题型名找组件</span>
+<span class="ln">110</span>    for (const key in com.status) {
+<span class="ln">111</span>      const name = com.status[key].name              <span class="cm">// 如 'title-editor'</span>
+<span class="ln">112</span>      com.status[key].editCom = componentMap[name]   <span class="cm">// 按控件名找编辑器</span>
+<span class="ln">113</span>    }
+<span class="ln">114</span>  })
+<span class="ln">115</span>}</code></pre>
+
+<div class="block h"><span class="tag h">这段是全场技术含量最高的一段</span>
+<p>面试如果问"你遇到过最难的技术问题"，用这个。完整答法：</p>
+<p>「我一开始直接把整个对象塞进 IndexedDB，报 DataCloneError。查了才知道结构化克隆不支持函数。所以改成落库前先做一次 JSON 序列化，把组件字段丢掉、只留 name 字符串。读取的时候再按 name 从 componentMap 里把组件查回来，重新挂到 type 和 editCom 上。</p>
+<p>这里踩过一个坑：<code>JSON.stringify</code> 处理组件对象不是把它删掉，而是变成 <code>{}</code>。所以我一开始写的"如果 type 为空才补"这个判断是失效的——它不为空，只是变成了空对象。后来改成无条件覆盖才对。」</p>
+</div>
+
+<h3>顺带：为什么用 IndexedDB 而不是 localStorage</h3>
+<table>
+<tr><th style="width:20%">维度</th><th>localStorage</th><th>IndexedDB</th></tr>
+<tr><td>容量</td><td>约 5MB，超了直接抛异常</td><td>通常几百 MB 起，按域名配额</td></tr>
+<tr><td>数据类型</td><td>只能存字符串</td><td>结构化克隆，能存对象/Blob/ArrayBuffer</td></tr>
+<tr><td>操作方式</td><td>同步，会阻塞主线程</td><td>异步，不卡 UI</td></tr>
+<tr><td>查询</td><td>自己 parse 后遍历</td><td>有索引、游标、范围查询</td></tr>
+</table>
+<p>这份项目里问卷带 base64 图片后很容易超过 5MB，所以必须用 IndexedDB。而"发布分享"那点小数据用 localStorage 就够（<code>utils/demoStore.ts</code> 就是干这个的）。</p>
+
+<!-- ============================================================ -->
+<h2 id="s10"><span class="idx">10</span>导出 PDF：为什么不截图</h2>
+
+<div class="block q"><span class="tag q">它解决什么问题</span>
+<p>用户要一份 PDF 版问卷拿去打印或发人。常见做法是 <code>html2canvas</code> 把页面截成图片再塞进 <code>jsPDF</code>。</p>
+<p>这个项目没用那种方案，走的是<b>浏览器原生打印通道</b>：<code>window.print()</code> + <code>@media print</code> 样式，用户在打印对话框里选"另存为 PDF"。</p>
+</div>
+
+<span class="file">src/views/Preview.vue</span>
+<pre><code><span class="ln">87</span>function genPDF() {
+<span class="ln">88</span>  const checkResult = store.coms.every((item) =&gt; isUseForPDF(item.name))
+<span class="ln">89</span>  if (!checkResult) {
+<span class="ln">92</span>    ElMessage({ message: '存在不支持PDF导出的组件，请先移除这些组件', type: 'warning' })
+<span class="ln">93</span>    return
+<span class="ln">94</span>  }
+<span class="ln">96</span>  window.print()
+<span class="ln">97</span>}</code></pre>
+
+<span class="file">src/views/Preview.vue（打印样式）</span>
+<pre><code><span class="ln">178</span>@media print {
+<span class="ln">179</span>  .no-print { display: none; }        <span class="cm">// 隐藏返回/导出按钮</span>
+<span class="ln">181</span>  .no-border { border: none; box-shadow: none; }  <span class="cm">// 去掉卡片边框阴影</span>
+<span class="ln">182</span>}</code></pre>
+
+<h3>两条路线的真实差别</h3>
+<table>
+<tr><th style="width:18%"></th><th>canvas 截图 + jsPDF</th><th>window.print（本项目）</th></tr>
+<tr><td>文字质量</td><td>变成位图，放大就糊</td><td><b>矢量文字</b>，放大不糊</td></tr>
+<tr><td>能否选中/搜索</td><td>不能，是一张图</td><td>能，就是真实文本</td></tr>
+<tr><td>文件体积</td><td>大（图片）</td><td>小</td></tr>
+<tr><td>分页</td><td>要自己算高度切图，很容易把一行字切成两半</td><td>浏览器排版引擎处理，自动分页</td></tr>
+<tr><td>代码量</td><td>几百行</td><td>十几行 + CSS</td></tr>
+<tr><td>依赖</td><td>两个几百 KB 的库</td><td>零依赖</td></tr>
+</table>
+
+<div class="warn">
+<b>这里有个必须说清楚的事（简历里原来写错了）：</b>
+<p style="margin-bottom:0"><code>package.json</code> 里确实装了 <code>html2canvas</code> 和 <code>jspdf</code>，但<b><code>src/</code> 里一次都没引用过</b>——是早期尝试留下的未使用依赖。真实导出走的是打印通道。<b>简历上不能写"基于 html2canvas + jsPDF 实现 PDF 导出"，面试官让你打开代码就穿了。</b></p>
+</div>
+
+<div class="block h"><span class="tag h">怎么答</span>
+<p>「导出 PDF 我最后选了浏览器打印通道，不是 canvas 截图。原因是问卷是文本为主的文档，canvas 方案会把文字变成位图，不可搜索、放大发虚、还要自己算分页容易切字。打印通道是浏览器排版引擎在干活，出来的是矢量 PDF，代码量也从几百行降到十几行。</p>
+<p>导出前我做了一次白名单校验——不是所有题型都适合打印（比如评分星星的交互控件打出来会变形），所以先用一个类型守卫把题型名过滤一遍，有不合规的就提示用户先移除，而不是硬导出生成一份残缺的 PDF。」</p>
+</div>
+
+<h3>那个白名单是什么</h3>
+
+<span class="file">src/types/material.ts</span>
+<pre><code><span class="ln">97</span>const useForPDFComNameArr: Material[] = [
+<span class="ln">98</span>  'single-select', 'multi-select', 'single-pic-select',
+<span class="ln">99</span>  'text-input', 'text-note', 'personal-info-name', ...
+<span class="ln">119</span>]
+<span class="ln">120</span>export function isUseForPDF(value: string): value is SurveyComName {
+<span class="ln">121</span>  return useForPDFComNameArr.includes(value as SurveyComName)
+<span class="ln">122</span>}</code></pre>
+
+<p>注意返回值写的是 <code>value is SurveyComName</code>，这叫<b>类型谓词</b>。它告诉 TypeScript："如果你这个函数返回 true，那这个参数就是 SurveyComName 类型"。这样调用处就能获得类型收窄，而不是只知道"是个 boolean"。</p>
+
+<!-- ============================================================ -->
+<h2 id="s11"><span class="idx">11</span>发布与答题：后端 4 个接口和降级</h2>
+
+<div class="block q"><span class="tag q">它解决什么问题</span>
+<p>编辑器做完问卷，要能生成一个链接发给别人填。</p>
+<p>这就需要一个后端存问卷、收答卷。<b>但现实是：这个项目多数时候跑在没有后端的静态环境里</b>（比如部署到静态托管做演示）。如果后端不在，点"生成链接"直接报错，整个 demo 就废了。</p>
+</div>
+
+<h3>后端只有 4 个接口</h3>
+
+<span class="file">server/server.js</span>
+<pre><code><span class="ln">70</span>POST /api/saveQuiz         <span class="cm">// 存一份问卷</span>
+<span class="ln">86</span>GET  /api/getQuiz/:id      <span class="cm">// 按 id 取问卷</span>
+<span class="ln">99</span>POST /api/submitAnswers    <span class="cm">// 提交答卷</span>
+<span class="ln">137</span>POST /api/upload           <span class="cm">// 图片上传（multer）</span></code></pre>
+
+<p>这是刻意的：<b>后端只做"分发通道"，不做业务</b>。真正的编辑逻辑、PDF 导出、组件渲染全在前端。所以后端挂了，编辑器照样能用。</p>
+
+<h3>我后来改的两处（这些是能讲的"我解决了什么"）</h3>
+
+<table>
+<tr><th style="width:26%">问题</th><th>改法</th></tr>
+<tr><td>数据存内存，<b>进程一重启问卷和答卷全丢</b></td><td>改成启动读盘、每次写入落盘到 <code>data/*.json</code>，写入用「临时文件 + rename」保证原子性——避免写到一半被杀留下半个 JSON，下次启动解析失败</td></tr>
+<tr><td>同一份问卷<b>第二个人提交会覆盖第一个人的答卷</b></td><td>从"对象直接赋值"改成"push 到数组"，并加时间戳</td></tr>
+<tr><td>问卷 id 不存在时返回 <code>undefined</code>，前端 <code>JSON.parse</code> 直接抛错白屏</td><td>返回明确的 404 + JSON 体，前端也补了 <code>response.ok</code> 判断和友好提示</td></tr>
+</table>
+
+<p>这三处还写了一个验证脚本 <code>server/_verify_persist.mjs</code>，7 项断言，其中包括最关键的<b>「杀掉进程重启后问卷还在」</b>——不是嘴上说持久化生效了。</p>
+
+<h3>三处降级：让没有后端也能演示</h3>
+
+<figure>
+<svg viewBox="0 0 900 218" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Microsoft YaHei,sans-serif">
+  <defs><marker id="a5" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#57606a"/></marker></defs>
+  <g font-size="11.5">
+    <rect x="18" y="30" width="264" height="72" rx="8" fill="#f6f8fa" stroke="#d8dee4"/>
+    <text x="150" y="54" text-anchor="middle" font-size="12.5" font-weight="700">图片题上传</text>
+    <text x="150" y="74" text-anchor="middle" fill="#57606a">POST /api/upload 失败</text>
+    <text x="150" y="92" text-anchor="middle" fill="#1a7f37">→ 转 base64 存进问卷</text>
+
+    <rect x="318" y="30" width="264" height="72" rx="8" fill="#f6f8fa" stroke="#d8dee4"/>
+    <text x="450" y="54" text-anchor="middle" font-size="12.5" font-weight="700">发布问卷</text>
+    <text x="450" y="74" text-anchor="middle" fill="#57606a">POST /api/saveQuiz 失败</text>
+    <text x="450" y="92" text-anchor="middle" fill="#1a7f37">→ 写 localStorage + 提示</text>
+
+    <rect x="618" y="30" width="264" height="72" rx="8" fill="#f6f8fa" stroke="#d8dee4"/>
+    <text x="750" y="54" text-anchor="middle" font-size="12.5" font-weight="700">打开答题页</text>
+    <text x="750" y="74" text-anchor="middle" fill="#57606a">GET /api/getQuiz 404</text>
+    <text x="750" y="92" text-anchor="middle" fill="#1a7f37">→ 回落读 localStorage</text>
+
+    <rect x="18" y="128" width="864" height="66" rx="8" fill="#fef6e7" stroke="#b45309"/>
+    <text x="450" y="152" text-anchor="middle" font-size="12.5" font-weight="700" fill="#b45309">这样的代价（要主动说，别等被问）</text>
+    <text x="450" y="176" text-anchor="middle" fill="#1f2328">演示模式下生成的 /quiz/xxx 链接只在本机能打开 —— 数据在生成它的那个浏览器的 localStorage 里，换设备/清缓存就没了</text>
+  </g>
+</svg>
+<figcaption>图 5 · 三处降级让"没有后端"也能完整演示；代价是分享链接只在本机有效</figcaption>
+</figure>
+
+<div class="block h"><span class="tag h">怎么答</span>
+<p>「发布这块我做了降级处理。因为项目会部署成纯静态站点做演示，没有后端，<code>/api/*</code> 全是 404。所以三处都做了兜底：图片上传失败就转 base64 存进问卷数据；发布失败就写 localStorage，并明确提示"演示模式，链接仅本机可打开"；答题页读不到后端就回落读本地。</p>
+<p>我不希望演示时出现白屏或者假成功——原来那个版本 <code>fetch</code> 没有 await，后端挂了也照样弹"链接已复制"，给用户的是个死链。这种假反馈在演示场景特别致命。」</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s12"><span class="idx">12</span>我踩过的两个真坑</h2>
+
+<p>面试最值钱的部分不是"我做成了什么"，是"我卡在哪、怎么出来的"。下面两个都是真实发生过的，有代码可查。</p>
+
+<h3>坑一：循环依赖导致整站白屏</h3>
+<div class="block x">
+<p><b>现象：</b>本地 <code>vite build</code> 完全通过，但打开页面一片白，控制台只有一行 <code>ReferenceError: Cannot access 'us' before initialization</code>。</p>
+<p><b>原因：</b>我在新加的 <code>db/seed.ts</code> 顶部静态 import 了题型工厂，工厂又 import 各自的 Vue 组件，组件又反向依赖 stores 和 utils，和 <code>HomeView → seed</code> 这条链组成了<b>循环依赖</b>。构建工具能打包，但运行时模块初始化顺序被打乱，某个变量在被赋值之前就被访问了（TDZ，暂时性死区）。</p>
+<p><b>解决：</b>把静态 import 改成函数内部的<b>动态 <code>import()</code></b>，把这条链推迟到应用挂载之后执行，循环就断开了。</p>
+<p><b>怎么定位的：</b>压缩后的报错只有单字母变量名，看不出是哪个模块。所以接了 CDP 抓浏览器控制台的异常堆栈，才定位到入口 chunk。</p>
+</div>
+
+<h3>坑二：IndexedDB 存不了函数</h3>
+<div class="block x">
+<p><b>现象：</b>预置示例数据时抛 <code>DataCloneError</code>，错误信息在生产构建里被打包工具压缩成了单字母。</p>
+<p><b>原因：</b><code>Status.type</code> 是 <code>markRaw</code> 包过的 Vue 组件对象，IndexedDB 的结构化克隆不支持函数。</p>
+<p><b>解决：</b>照项目原有的约定，落库前先 <code>JSON.parse(JSON.stringify(...))</code> 把组件字段丢掉，只留 <code>name</code>；读取时 <code>restoreComponentStatus</code> 按 name 查 <code>componentMap</code> 补回来。</p>
+<p><b>额外收获：</b>发现 <code>JSON.stringify</code> 把组件变成了 <code>{}</code> 而不是删掉这个字段，所以"为空才补"的判断是失效的，必须无条件覆盖。</p>
+</div>
+
+<div class="tip">
+<b>讲坑的正确姿势：现象 → 排查过程 → 根因 → 方案 → 学到什么。</b>五步缺一不可。只说"我遇到了一个 bug 然后修好了"，等于没讲；把"怎么定位的"讲清楚，才显得你会调试。
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s13"><span class="idx">13</span>面试预演：20 问 20 答</h2>
+
+<p>按被问到的概率排序。答法都是口语，可以直接念。</p>
+
+<div class="qa"><div class="question">为什么用 Pinia 不用 Vuex？</div><div class="answer">Vuex 要写 mutation，改状态得先 commit，一个简单操作要跨两个地方改。Pinia 去掉了 mutation，action 里直接改 state，而且对 TypeScript 支持是原生的——不用为了类型推导写一堆额外声明。这个项目状态结构比较复杂（嵌套的 status 对象），用 Pinia 的类型体验明显更好。</div></div>
+
+<div class="qa"><div class="question">markRaw 是干什么的？为什么到处都在用？</div><div class="answer">它告诉 Vue"这个对象不要做成响应式代理"。组件对象被 proxy 包一层之后，性能会白掉，而且会导致组件身份比较失效、拖拽时可能触发递归更新。凡是不会变的对象——组件、图标、配置常量——都应该 markRaw。</div></div>
+
+<div class="qa"><div class="question">你项目里有没有做性能优化？</div><div class="answer">有，但不算多。一是路由级懒加载，编辑器、预览、答题页都是 <code>() =&gt; import()</code> 按需加载，首屏不用把编辑器代码下载下来。二是组件用 markRaw 避免无谓的响应式代理。三是属性面板是 v-for 渲染的，每一项都带稳定 id 做 key，避免增减选项时复用错的 DOM。做得不够的地方是主包还是偏大，Element Plus 全量引入了，如果继续优化会改成按需引入。</div></div>
+
+<div class="qa"><div class="question">为什么选项至少保留两个？删到一个会怎样？</div><div class="answer">单选/多选只有一个选项没有意义，问卷逻辑上就废了。所以 <code>removeOption</code> 里做了判断：<code>status.length === 2</code> 时直接返回 false，dispatch 那层根据返回值提示"至少保留两个选项"。这是把业务规则收在 action 里，而不是散在各个 UI 组件里。</div></div>
+
+<div class="qa"><div class="question">题目编号是存在数据里的吗？</div><div class="answer">不是，是算出来的。<code>useSurveyNo</code> 遍历 coms，只在"是题目类型"的位置递增计数器，备注说明这类非题目组件返回 null。好处是删掉中间一道题，后面编号自动前移，不需要手动维护一个 number 字段——那种做法的数据一致性维护成本很高。</div></div>
+
+<div class="qa"><div class="question">拖拽排序怎么实现的？</div><div class="answer">用 vuedraggable，<code>v-model</code> 直接绑 store 里的 coms 数组。所以拖动结束时数组顺序就变了，不需要额外的"同步"逻辑。DOM 上的 key 用的是每道题自己的 id 而不是数组下标——用下标的话，拖动后 Vue 会复用错误的组件实例，输入框里的光标位置这类内部状态会串。</div></div>
+
+<div class="qa"><div class="question">你的属性面板为什么只有 12 行？不可能吧。</div><div class="answer">真的只有 12 行，核心就是一个 v-for 加一个动态组件。<code>v-for</code> 遍历这道题的 status，每一项自带 <code>editCom</code> 字段说明"用哪个控件编辑我"，然后 <code>&lt;component :is="item.editCom"&gt;</code> 渲染出来。面板本身不认识任何具体控件，所以 30 种题型共用这一套。这是数据驱动的收益。</div></div>
+
+<div class="qa"><div class="question">那 config-key 是干嘛的？不传行不行？</div><div class="answer">不行。因为有些控件是复用的，比如 titleSize 和 descSize 用的是同一个 SizeEditor，选项值完全一样，只是作用对象不同。控件必须知道"我在改的是 titleSize 还是 descSize"，所以父级得把 key 传进去。</div></div>
+
+<div class="qa"><div class="question">为什么改一个属性要绕这么多层（updateStatus → dispatch → action）？直接改 store 不行吗？</div><div class="answer">直接改的话，十几种控件就有十几种改法，而且"必须先选中组件"这种前置校验要在每个控件里写一遍。收口到一个入口之后，校验只写一处，类型分派只在 dispatch 里做一次，UI 组件只负责发消息不负责改数据。代价是链路长了一点，但可维护性好很多。</div></div>
+
+<div class="qa"><div class="question">options 那一堆 if-else 判断 payload 类型，是不是设计得不好？</div><div class="answer">这是权衡。选项这一块有四种操作——增、删、改文字、启用禁用——改的是同一个字段，开四个入口会把面板和 store 之间的接口撑大。所以用载荷类型区分意图。知道它的缺点：可读性一般，新人接手要对着注释看。如果重做，可能会拆成 <code>updateOptions(action, payload)</code> 这样显式带操作类型，比靠类型猜更清楚。</div></div>
+
+<div class="qa"><div class="question">为什么用 TypeScript 还要写那么多 isXxx 判断？</div><div class="answer">因为类型在运行时全部消失，TypeScript 只是编译期约束。数据可能来自 IndexedDB、来自后端接口、来自用户输入，运行时什么都可能发生。所以关键入口要做运行时校验。那些 <code>isXxx</code> 是类型谓词函数，返回值写成 <code>value is SomeType</code>，这样校验完 TypeScript 还能自动收窄类型，一举两得。</div></div>
+
+<div class="qa"><div class="question">为什么存 IndexedDB 不存 localStorage？</div><div class="answer">三个原因：容量、类型、阻塞。localStorage 只有 5MB 左右，问卷里带 base64 图片很容易爆；它只能存字符串，每次都要手动序列化；而且它是同步 API，大一点的数据会卡主线程。IndexedDB 容量大、支持结构化克隆、全异步还有索引。Dexie 是在上面封了一层 Promise 化的 API，写起来比原生 IDB 舒服太多。</div></div>
+
+<div class="qa"><div class="question">我看到你存的时候做了 JSON 序列化，为什么？</div><div class="answer">因为数据里有 Vue 组件对象，IndexedDB 的结构化克隆不支持函数，直接存会抛 DataCloneError。序列化一次等于"深拷贝但只保留能被 JSON 表达的部分"，组件字段就被过滤掉了，只留 name 字符串。</div></div>
+
+<div class="qa"><div class="question">那读回来组件怎么办？</div><div class="answer">按 name 查表补回来。<code>restoreComponentStatus</code> 里遍历每道题，用 <code>componentMap[com.name]</code> 还原 type，用 <code>componentMap[status[key].name]</code> 还原每个编辑控件。这里有个坑：stringify 之后 type 不是被删掉而是变成了空对象 <code>{}</code>，所以判断"为空才补"是失效的，必须无条件覆盖。</div></div>
+
+<div class="qa"><div class="question">你的编辑器有两个 store，为什么要两个？</div><div class="answer">编辑器和组件市场是两个场景：编辑器操作"数组里某个位置的题"，市场操作"当前选中的那一个题型"。数据结构不一样，但操作逻辑完全一样。所以拆成两个 store 各自管数据结构，共用同一套 actions 接口，再用一个 useStore() 按当前视图动态返回实例。这样 dispatch 那层的分派逻辑只写一份。</div></div>
+
+<div class="qa"><div class="question">useStore 读 localStorage 会不会有问题？</div><div class="answer">会，这是我的一个已知弱点。它依赖 localStorage 这个隐式状态，如果值不匹配两个 case 会返回 undefined，调用方就炸了。更稳的做法是把视图类型放进路由 meta，或者用 provide/inject 显式传，而不是读全局存储。当时为了快速跑通选了简单方案，这是要还的技术债。</div></div>
+
+<div class="qa"><div class="question">PDF 导出怎么做的？</div><div class="answer">走浏览器原生打印通道，<code>window.print()</code> 配合 <code>@media print</code> 隐藏操作区和边框。没用 canvas 截图方案，因为问卷是文本为主的文档，截图会把文字变成位图——不可搜索、放大发虚、还要自己算分页容易把一行字切两半。打印通道出来的是矢量 PDF，代码量也少一个数量级。</div></div>
+
+<div class="qa"><div class="question">那 package.json 里的 html2canvas 和 jspdf 是干嘛的？</div><div class="answer">早期尝试留下的，后来改用打印通道就没删。实际代码里没有任何引用，是我的疏忽——应该清掉。这也说明依赖清单要定期清理，留着会让人误判技术方案。（<b>这题如果被问到，大方承认，比找理由强。</b>）</div></div>
+
+<div class="qa"><div class="question">后端为什么只有 4 个接口？是不是太简单了？</div><div class="answer">是刻意保持简单的。这个项目的定位是前端低代码编辑器，后端只承担"问卷分发"这一件事：存问卷、取问卷、收答卷、传图片。编辑逻辑、渲染、PDF 导出全在前端。这样做的好处是后端挂了编辑器照样能用。我在后端做的改进主要是持久化——原来是内存变量重启就丢，改成落盘 JSON，写入用临时文件加 rename 保证原子性。</div></div>
+
+<div class="qa"><div class="question">如果让你重做，你会改什么？</div><div class="answer">三件事。一是把 useStore 依赖 localStorage 改成依赖路由 meta，去掉那个隐式状态。二是 options 那块靠 payload 类型分派改成显式的操作类型，可读性更好。三是把导出白名单、题型枚举这些"散在类型文件里的业务清单"抽成配置，现在是硬编码数组，加题型容易漏改。另外主包偏大，Element Plus 应该改按需引入。</div></div>
+
+<!-- ============================================================ -->
+<h2 id="s14"><span class="idx">14</span>不能说的话（简历与讲解红线）</h2>
+
+<div class="warn">
+<p style="margin-top:0"><b>这一节比前面所有节都重要。</b>面试官不会因为你某个技术点讲得浅而否掉你，但会因为发现你说的话和代码不符而直接否掉。以下几条，一条都不能碰。</p>
+</div>
+
+<table>
+<tr><th style="width:34%">❌ 不能说</th><th>真相 / 该怎么说</th></tr>
+<tr>
+<td>「基于 html2canvas + jsPDF 实现 PDF 导出」</td>
+<td>这两个库<b>代码里一次都没引用</b>。实际是 <code>window.print()</code> + 打印样式。要说"基于浏览器打印通道导出 PDF，配合题型白名单校验"。</td>
+</tr>
+<tr>
+<td>「打通创建-编辑-预览-发布-回收<b>全链路闭环</b>」</td>
+<td>后端只有 4 个接口、72 行，且原来存内存。"全链路闭环"这个词太重了，容易被追问架构。改成"前端完成创建-编辑-预览-导出全链路，服务端提供问卷分发与答卷回收接口"。</td>
+</tr>
+<tr>
+<td>「实现了用户体系 / 权限管理」</td>
+<td>项目<b>没有登录注册</b>，问卷归属靠浏览器本地数据。一个字都不能提。</td>
+</tr>
+<tr>
+<td>「用了 WebSocket 做协同编辑」</td>
+<td>没有任何 WebSocket。虽然有个 EventBus 文件，但那是组件间通信用的，跟实时协同没关系。</td>
+</tr>
+<tr>
+<td>「数据库设计 / 索引优化」</td>
+<td>后端是 JSON 文件，<b>没有数据库</b>。前端 IndexedDB 只有一张表三个索引（createDate / updateDate / title / surveyCount）。说"设计了 IndexedDB 表结构"可以，说"数据库设计"会被追着问到崩。</td>
+</tr>
+<tr>
+<td>「支持 30+ 题型」</td>
+<td>数字没问题（<code>SurveyComName</code> 里 25 个题型 + 备注说明 = 26 种组件，算上 12 个编辑控件是 38 个）。但<b>别把编辑控件也算成题型</b>，被问"哪 30 种"会数不出来。稳妥说法："20 多种题型"。</td>
+</tr>
+<tr>
+<td>「高并发 / 性能压测」</td>
+<td>没有任何压测数据。这个项目的量级根本谈不上并发。</td>
+</tr>
+</table>
+
+<div class="tip">
+<b>一条通用原则：</b>凡是简历上写了、但你说不清"具体在哪个文件第几行"的东西，一律删掉或者改弱。<b>能讲透三个点，比罗列十个点值钱得多。</b>
+</div>
+
+<h2 id="end" style="border-top:2px solid var(--ink)"><span class="idx">—</span>最后</h2>
+
+<p>这份手册对应的是真实代码，每条都能在仓库里找到出处。如果某天代码改了，手册里引用的行号会漂，但<b>设计意图和踩坑经历不会变</b>——面试真正问的是后面这些。</p>
+
+<p style="color:var(--ink-3); font-size:13.5px; margin-top:28px">生成时间：2026-10-29　·　对应仓库：低代码问卷平台（survey + server）</p>
+
+</div>
+</body>
+</html>
