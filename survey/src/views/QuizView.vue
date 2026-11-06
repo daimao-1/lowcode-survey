@@ -121,7 +121,14 @@ const submitAnswers = async () => {
 
 <style scoped lang="scss">
 .quiz-container {
-  width: 800px;
+  // 原来写死 800px，手机上整页横向滚动，选项和输入框右侧被裁掉
+  width: 100%;
+  max-width: 800px;
+}
+@media screen and (max-width: 768px) {
+  .quiz-container {
+    padding: 0 12px;
+  }
 }
 .quiz-error {
   padding: 80px 20px;

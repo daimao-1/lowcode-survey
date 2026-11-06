@@ -22,6 +22,12 @@
               @click.stop="removeCom(index)"
             />
           </div>
+          <!-- 移动端：vuedraggable 走的是 HTML5 drag 事件，触屏上根本不会触发，
+               拖不动就等于改不了顺序。所以补一组「上移 / 下移」按钮兜底。 -->
+          <div class="mobile-order" v-if="isMobile && store.currentComponentIndex === index">
+            <el-button size="small" @click.stop="moveCom(index, -1)">上移</el-button>
+            <el-button size="small" @click.stop="moveCom(index, 1)">下移</el-button>
+          </div>
         </div>
       </template>
     </draggable>
@@ -43,6 +49,9 @@ const store = useEditorStore()
 
 // 组合式函数
 import { useSurveyNo } from '@/utils/hooks'
+import { useIsMobile } from '@/utils/useIsMobile'
+// 是否移动端窄屏（触屏拖拽不可用，需要上移/下移兜底）
+const isMobile = useIsMobile()
 // 获取题目编号
 const serialNum = computed(() => useSurveyNo(store.coms).value)
 
@@ -101,6 +110,19 @@ function dragstart() {
   // 拖动开始的时候，将当前选中的组件取消选中
   store.setCurrentComponentIndex(-1)
 }
+
+// 上移 / 下移：触屏设备上拖拽排序不可用时的替代方案
+function moveCom(index: number, dir: -1 | 1) {
+  const target = index + dir
+  if (target < 0 || target >= store.coms.length) return
+  const next = [...store.coms]
+  const [item] = next.splice(index, 1)
+  if (!item) return
+  next.splice(target, 0, item)
+  store.coms = next
+  // 换位后保持该题目选中，否则属性面板会直接收起
+  store.setCurrentComponentIndex(target)
+}
 </script>
 
 <style scoped>
@@ -132,5 +154,22 @@ function dragstart() {
 .delete-btn {
   right: -5px;
   top: -10px;
+}
+.mobile-order {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+/* 移动端：画布占满宽度
+   原来 width: 50% + margin: 70px auto，在 390px 屏上画布只剩约 195px，
+   题目内容被压得断行。
+   注意这个 style 块是纯 CSS，注释只能用块注释，不能用双斜杠。 */
+@media screen and (max-width: 768px) {
+  .center-container {
+    width: 100%;
+    margin: 10px auto;
+    padding: 12px;
+    box-sizing: border-box;
+  }
 }
 </style>

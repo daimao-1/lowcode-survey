@@ -153,12 +153,24 @@ function copyLink() {
 
 <style scoped lang="scss">
 .preview-container {
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
+  // 原来写 100vw，会因为「视口宽度包含滚动条」而多出几条像素，
+  // 横向多出一根滚动条，手机上尤其明显
+  overflow-x: hidden;
   background: url('@/assets/imgs/editor_background.png');
 }
 .center {
-  width: 800px;
+  // 原来写死 800px：手机（390px）上整页被撑到 800px，
+  // 只能横向拖动才能看到右侧选项和输入框。
+  // 改成「占满可用宽度 + 最大 800px」，桌面端观感不变，手机端自适应。
+  width: 100%;
+  max-width: 800px;
+}
+@media screen and (max-width: 768px) {
+  .center {
+    padding: 0 12px;
+  }
 }
 .button-group {
   width: 100%;

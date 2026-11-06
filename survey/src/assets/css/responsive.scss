@@ -1,0 +1,99 @@
+// ============================================================
+// 移动端适配（统一收口，避免各处散落魔法数字）
+// 断点：≤768px 视为移动端（覆盖主流手机，含 414/390/375）
+// 桌面端不受影响，所有规则都包在媒体查询里
+// ============================================================
+$mobile-max: 768px;
+
+@media screen and (max-width: $mobile-max) {
+  // ---------- 1. 选项类题目竖排 ----------
+  // Element Plus 的 radio-group / checkbox-group 默认横向堆叠，
+  // 窄屏下会把后面的选项顶出可视区（实测 390px 下第 3 个选项就看不见了）。
+  .el-radio-group,
+  .el-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+  .el-radio,
+  .el-checkbox {
+    margin-right: 0;
+    height: auto;
+    max-width: 100%;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  // 长选项文案允许换行，不再一行拉到底导致横向溢出
+  .el-radio__label,
+  .el-checkbox__label {
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  // ---------- 2. 触控目标放大到 40px 以上 ----------
+  // 实测旧版操作按钮只有 18px 高（查看问卷 54×18、编辑 30×18），
+  // 手指点不准。44px 是移动端通用可点尺寸，40px 是折中。
+  .el-button {
+    min-height: 40px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .el-button--small {
+    min-height: 36px;
+  }
+  // 表格里的 link 按钮（link 样式没有实体背景，尺寸更小）
+  .el-button.is-link {
+    min-height: 36px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  // ---------- 3. 表单控件撑满可用宽度 ----------
+  .el-input,
+  .el-textarea,
+  .el-select,
+  .el-date-editor,
+  .el-input-number {
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  // ---------- 4. 弹窗贴边显示 ----------
+  .el-dialog {
+    width: calc(100% - 24px) !important;
+    max-width: calc(100% - 24px);
+  }
+  .el-message-box {
+    width: calc(100% - 32px) !important;
+    max-width: calc(100% - 32px);
+  }
+
+  // ---------- 5. 顶部操作栏允许换行 ----------
+  // 原来 space-between 强行一行排开，窄屏下按钮互相挤压、标题被挤没
+  .button-group {
+    flex-wrap: wrap;
+    gap: 8px;
+    height: auto !important;
+    padding-bottom: 10px;
+  }
+
+  // ---------- 6. 兜底：禁止横向滚动 ----------
+  // 桌面版 Chrome 的经典滚动条会占掉 24px 宽度，position: fixed 的
+  // 抽屉按 layout viewport 算宽度（414），比可视区（390）宽，
+  // 于是文档出现横向滚动。真机是 overlay 滚动条不会触发，
+  // 但这里直接禁掉横向滚动，两种环境都稳。
+  html,
+  body {
+    overflow-x: hidden;
+  }
+}
+
+// 打印（生成本地 PDF）时不能裁掉内容
+@media print {
+  html,
+  body {
+    overflow-x: visible;
+  }
+}

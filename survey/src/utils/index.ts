@@ -36,20 +36,29 @@ export function handleScroll(event: WheelEvent) {
 
 // 将时间戳转为日期格式
 // 日期格式化函数
+const DATE_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+}
+
 export function formatDate(
   row: SurveyDBData,
   column: TableColumnCtx<SurveyDBData>,
   cellValue: number,
 ) {
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }
-  return new Intl.DateTimeFormat('zh-CN', options).format(new Date(cellValue))
+  return new Intl.DateTimeFormat('zh-CN', DATE_FORMAT_OPTIONS).format(new Date(cellValue))
+}
+
+// 独立的时间戳格式化函数（非 el-table formatter 专用）
+// 移动端的卡片列表直接用时间戳渲染，没有 column/cellValue 那套上下文，
+// 只能调这个。跟 formatDate 用同一套格式，输出保持一致。
+export function formatDateTime(timestamp: number) {
+  if (!timestamp) return ''
+  return new Intl.DateTimeFormat('zh-CN', DATE_FORMAT_OPTIONS).format(new Date(timestamp))
 }
 
 export function getTextStatus(props: TextProps) {

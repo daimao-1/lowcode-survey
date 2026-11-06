@@ -90,4 +90,16 @@ provide('getPicLink', getPicLink)
   position: fixed;
   top: 50px;
 }
+
+// 移动端：解除固定定位，让左侧面板（题型/大纲）回到正常文档流，
+// 否则它会盖住画布；右侧属性面板改成底部抽屉（见 RightSide.vue）。
+@media screen and (max-width: 768px) {
+  .container {
+    width: 100%;
+    height: auto;
+    position: static;
+    top: auto;
+    padding: 0;
+  }
+}
 </style>

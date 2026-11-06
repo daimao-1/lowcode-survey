@@ -93,4 +93,42 @@ const switchOutline = () => {
     overflow-y: scroll;
   }
 }
+
+// ============================================================
+// 移动端：左侧面板改为「顶部横向 tab + 内容区」
+// 原来这里写死 300px 宽的固定定位浮层，在 390px 屏幕上被压成
+// 约 28px 的竖条，「题型 / 大纲」两个字都显示不全，等于没有。
+// ============================================================
+@media screen and (max-width: 768px) {
+  .left-side-container {
+    width: 100%;
+    height: auto;
+    position: static;
+    left: auto;
+    top: auto;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    flex-direction: column;
+    > .tabs {
+      width: 100%;
+      height: auto;
+      display: flex;
+      border-right: none;
+      border-bottom: 1px solid var(--border-color);
+      > .tab-item {
+        width: 50%;
+        height: 52px;
+        flex-direction: row;
+        gap: 6px;
+      }
+    }
+    > .tab-pane {
+      width: 100%;
+      height: auto;
+      max-height: 38vh;
+      padding: 12px;
+    }
+  }
+}
 </style>

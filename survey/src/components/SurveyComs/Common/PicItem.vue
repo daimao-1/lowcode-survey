@@ -71,11 +71,15 @@ watch(
   { immediate: true },
 )
 
-const handleAvatarSuccess: UploadProps['onSuccess'] = async (response) => {
+// 原来标成 UploadProps['onSuccess']，但 Element Plus 那个回调签名要三个参数
+// (response, uploadFile, uploadFiles)，而这里只在自定义上传里手动调用它，
+// 类型检查直接报 "Expected 3 arguments, but got 1"，导致 npm run build 过不去。
+// 换成贴合实际用法的本地签名，行为不变。
+const handleAvatarSuccess = async (response: { imageUrl?: string }) => {
   if (getPicLink)
     getPicLink({
       index: props.index,
-      link: response.imageUrl,
+      link: response.imageUrl || '',
     })
 }
 
