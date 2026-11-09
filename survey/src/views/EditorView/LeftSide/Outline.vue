@@ -68,7 +68,11 @@ const clickHandle = function (index: number) {
   cursor: pointer;
 }
 .tip {
-  height: calc(100% - 50px);
+  /* 原来 calc(100% - 50px) 是按旧布局（父级高度算不准）凑的，
+     换成 flex 布局后父容器高度明确，直接撑满并自己滚动，
+     否则大纲底部会被裁掉。 */
+  height: 100%;
+  overflow-y: auto;
 }
 .active {
   transform: scale(1.04);

@@ -1,5 +1,5 @@
 <template>
-  <div ref="centerContainer" class="center-container">
+  <div ref="centerContainer" class="center-container" @click.self="clearSelection">
     <draggable v-model="store.coms" item-key="index" @start="dragstart">
       <template #item="{ element, index }">
         <div
@@ -59,11 +59,22 @@ const centerContainer = ref<HTMLElement | null>(null) // 明确声明类型
 const componentRefs = ref<(Element | ComponentPublicInstance | null)[]>([])
 const clickHandle = function (index: number) {
   if (store.currentComponentIndex === index) {
-    store.setCurrentComponentIndex(-1)
-  } else {
-    store.setCurrentComponentIndex(index)
-    scrollToCenter(index)
+    // 重复点同一道题不再取消选中。
+    // 原来这里是个 toggle：点一下打开、再点一下关闭。
+    // 在手机上很容易连点两下，于是「属性面板怎么都不出来」。
+    return
   }
+  store.setCurrentComponentIndex(index)
+  // 滚动必须等 click 事件走完再执行。
+  // 原来在这里直接 scrollIntoView(behavior smooth)，元素在 mouseup 之前
+  // 就开始移动，浏览器判定 mousedown 与 mouseup 不在同一元素上 → click 被丢弃，
+  // 表现就是「点了没反应」。
+  setTimeout(() => scrollToCenter(index), 0)
+}
+
+// 点击画布空白处取消选中（桌面端没有抽屉，关不掉就没法重新选别的题）
+const clearSelection = function () {
+  store.setCurrentComponentIndex(-1)
 }
 const scrollToBottom = function () {
   nextTick(() => {
@@ -127,10 +138,17 @@ function moveCom(index: number, dir: -1 | 1) {
 
 <style scoped>
 .center-container {
-  width: 50%;
+  /* 桌面端：画布吃掉左右两栏之外的全部宽度，永不与面板重叠。
+     min-width: 0 是关键 —— flex 子项默认 min-width:auto，
+     内容过宽时会把容器撑破，等于又回到原来被面板压住的老问题。 */
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  margin: 70px auto;
+  margin: 20px 0;
   padding: 20px;
   background: var(--white);
   position: relative;
@@ -160,13 +178,13 @@ function moveCom(index: number, dir: -1 | 1) {
   gap: 8px;
   margin-top: 10px;
 }
-/* 移动端：画布占满宽度
-   原来 width: 50% + margin: 70px auto，在 390px 屏上画布只剩约 195px，
-   题目内容被压得断行。
-   注意这个 style 块是纯 CSS，注释只能用块注释，不能用双斜杠。 */
-@media screen and (max-width: 768px) {
+/* 窄屏（≤1199px）：画布占满宽度，属性面板改为底部抽屉 */
+@media screen and (max-width: 1199px) {
   .center-container {
+    flex: none;
     width: 100%;
+    height: auto;
+    overflow-y: visible;
     margin: 10px auto;
     padding: 12px;
     box-sizing: border-box;

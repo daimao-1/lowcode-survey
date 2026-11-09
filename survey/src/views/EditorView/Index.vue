@@ -5,10 +5,8 @@
     </div>
     <div class="container">
       <LeftSide />
-      <RightSide />
-    </div>
-    <div>
       <Center />
+      <RightSide />
     </div>
   </div>
 </template>
@@ -81,25 +79,42 @@ provide('getPicLink', getPicLink)
   top: 0;
   z-index: 10;
 }
+
+// ============================================================
+// 编辑器改为 flex 三栏：左题型栏 / 中画布 / 右属性栏
+//
+// 原来三块是各自绝对定位的写死宽度：
+//   .left-side-container  { position: fixed; width: 300px; left: 20px }
+//   .right-side-container { position: fixed; width: 320px; right: 20px }
+//   .center-container     { width: 50%; margin: 70px auto }
+// 画布的 50% 宽度跟两侧的固定宽度毫无关系，视口一旦小于约 1300px，
+// 两侧面板就压在画布上（实测 1024px 时重叠 2.6 万 / 3.2 万平方像素），
+// 点被压住的那半边题目，点击落到面板上，属性面板永远不触发。
+//
+// 现在画布用 flex 吃剩余空间，左右两栏固定宽度且不重叠。
+// ============================================================
 .container {
-  width: calc(100vw - 40px);
+  width: 100%;
+  height: calc(100vh - 50px);
   padding: 20px;
-  // Header的高度50px，上下padding 20px
-  height: calc(100vh - 50px - 40px);
+  box-sizing: border-box;
   background: url('@/assets/imgs/editor_background.png');
   position: fixed;
   top: 50px;
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  overflow: hidden;
 }
 
-// 移动端：解除固定定位，让左侧面板（题型/大纲）回到正常文档流，
-// 否则它会盖住画布；右侧属性面板改成底部抽屉（见 RightSide.vue）。
-@media screen and (max-width: 768px) {
+// 窄屏（含 iPad 横屏 / 笔记本窄窗口）：左右面板改为覆盖式抽屉，
+// 画布铺满。断点取 1200px —— 再窄的话三栏会把画布压到没法用。
+@media screen and (max-width: 1199px) {
   .container {
-    width: 100%;
-    height: auto;
-    position: static;
-    top: auto;
     padding: 0;
+    display: block;
+    height: auto;
+    overflow: visible;
   }
 }
 </style>

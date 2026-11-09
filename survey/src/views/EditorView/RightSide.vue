@@ -1,5 +1,10 @@
 <template>
   <div class="right-side-container" :class="{ 'is-open': isOpen }" @wheel="handleScroll($event)">
+    <!-- 窄屏下属性面板是从底部升起的抽屉，需要一个明确的关闭入口 -->
+    <div class="drawer-head" v-if="isOpen">
+      <span class="drawer-title">题目属性</span>
+      <el-button type="primary" size="small" @click="closeDrawer">关闭</el-button>
+    </div>
     <div
       v-if="store.currentComponentIndex === -1"
       class="content flex justify-content-center align-items-center"
@@ -24,16 +29,20 @@ const store = useEditorStore() as EditorStore
 const currentCom = computed(() => store.coms[store.currentComponentIndex])
 // 选中题目时属性面板才打开（移动端用，移动端它是从底部升起的抽屉）
 const isOpen = computed(() => store.currentComponentIndex !== -1)
+// 关闭抽屉 = 取消选中
+const closeDrawer = () => {
+  store.setCurrentComponentIndex(-1)
+}
 // 右侧编辑面板的父组件提供修改状态的方法
 </script>
 
 <style scoped lang="scss">
 .right-side-container {
   width: 320px;
-  height: calc(100vh - 50px - 40px);
-  position: fixed;
-  right: 20px;
-  top: 70px;
+  // 桌面端由外层 flex 容器排布，不再 absolute 浮在画布上
+  flex: 0 0 320px;
+  height: 100%;
+  position: static;
   background-color: var(--white);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
@@ -43,15 +52,22 @@ const isOpen = computed(() => store.currentComponentIndex !== -1)
   height: 100%;
 }
 
+// 抽屉头部只在窄屏出现（桌面端右栏常驻，不需要关闭按钮）
+.drawer-head {
+  display: none;
+}
+
 // ============================================================
-// 移动端：属性面板改成「底部抽屉」
+// 窄屏（≤1199px）：属性面板改成「底部抽屉」
 // 原来固定 320px 贴在右边，390px 屏幕上完全在可视区之外，
 // 选完题目根本看不到属性，等于改不了。
 // ============================================================
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1199px) {
   .right-side-container {
     width: 100%;
+    flex: none;
     height: 62vh;
+    position: fixed;
     right: 0;
     left: 0;
     top: auto;
@@ -65,6 +81,22 @@ const isOpen = computed(() => store.currentComponentIndex !== -1)
     transition: transform 0.25s ease;
     &.is-open {
       transform: translateY(0);
+    }
+  }
+  .drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    background: var(--white);
+    z-index: 2;
+    .drawer-title {
+      font-size: 14px;
+      font-weight: 500;
     }
   }
 }
