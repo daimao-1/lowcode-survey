@@ -62,9 +62,14 @@ export interface MaterialStore extends Actions {
 
 export interface EditorStore extends Actions {
   currentComponentIndex: number
+  // 正在「编辑」的题目下标：属性面板跟着它走。
+  // 与 currentComponentIndex 分开，是因为画布上的单击要留给选中/拖拽排序，
+  // 只有双击才进入修改（见 EditorView/Center.vue）。
+  editingIndex: number
   surveyCount: number
   coms: Status[]
   setCurrentComponentIndex: (index: number) => void
+  setEditingIndex: (index: number) => void
   addCom: (coms: Status[], newCom: Status) => void
   setStore: (storeStatus: SurveyDBData) => void
   initStore: () => void

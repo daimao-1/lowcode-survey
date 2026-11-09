@@ -1,6 +1,13 @@
 <template>
   <div ref="centerContainer" class="center-container" @click.self="clearSelection">
-    <draggable v-model="store.coms" item-key="index" @start="dragstart">
+    <draggable
+      v-model="store.coms"
+      item-key="index"
+      :delay="200"
+      :delay-on-touch-only="false"
+      :suppress-click-after-delayed="true"
+      @start="dragstart"
+    >
       <template #item="{ element, index }">
         <div
           class="content mb-10 relative"
@@ -8,6 +15,7 @@
             active: store.currentComponentIndex === index,
           }"
           @click="clickHandle(index)"
+          @dblclick.stop="enterEdit(index)"
           :key="element.id"
           :ref="(el) => (componentRefs[index] = el)"
         >
@@ -58,13 +66,21 @@ const serialNum = computed(() => useSurveyNo(store.coms).value)
 const centerContainer = ref<HTMLElement | null>(null) // 明确声明类型
 const componentRefs = ref<(Element | ComponentPublicInstance | null)[]>([])
 const clickHandle = function (index: number) {
-  if (store.currentComponentIndex === index) {
-    // 重复点同一道题不再取消选中。
-    // 原来这里是个 toggle：点一下打开、再点一下关闭。
-    // 在手机上很容易连点两下，于是「属性面板怎么都不出来」。
-    return
-  }
+  // 单击只做「选中」（高亮），不打开属性面板。
+  // 原因：vuedraggable 在 mousedown 就接管指针，手一动就变成拖拽排序，
+  // 原来单击既想选中又想改属性，两个手势互相打架，结果就是「点一下老是触发不了」。
+  // 现在：桌面端双击才进修改（见 enterEdit），触屏/窄屏单击直接进修改
+  // （触屏上本来就没有拖拽排序，不存在冲突）。
   store.setCurrentComponentIndex(index)
+  if (isMobile.value) {
+    store.setEditingIndex(index)
+  }
+}
+
+// 进入修改：打开属性面板
+const enterEdit = function (index: number) {
+  store.setCurrentComponentIndex(index)
+  store.setEditingIndex(index)
   // 滚动必须等 click 事件走完再执行。
   // 原来在这里直接 scrollIntoView(behavior smooth)，元素在 mouseup 之前
   // 就开始移动，浏览器判定 mousedown 与 mouseup 不在同一元素上 → click 被丢弃，
@@ -72,9 +88,10 @@ const clickHandle = function (index: number) {
   setTimeout(() => scrollToCenter(index), 0)
 }
 
-// 点击画布空白处取消选中（桌面端没有抽屉，关不掉就没法重新选别的题）
+// 点击画布空白处取消选中与编辑（桌面端没有抽屉，关不掉就没法重新选别的题）
 const clearSelection = function () {
   store.setCurrentComponentIndex(-1)
+  store.setEditingIndex(-1)
 }
 const scrollToBottom = function () {
   nextTick(() => {
@@ -157,6 +174,9 @@ function moveCom(index: number, dir: -1 | 1) {
     padding: 10px;
     background-color: var(--white);
     border-radius: var(--border-radius-sm);
+    /* 双击进编辑时，浏览器默认会把题目文字一起选中（蓝色高亮），
+       看着像误操作。画布内容是预览，不该能被选中。 */
+    user-select: none;
     &:hover {
       transform: scale(1.01);
       transition: 0.5s;

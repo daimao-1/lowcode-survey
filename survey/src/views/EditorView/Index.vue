@@ -50,14 +50,15 @@ const updateStatus: UpdateStatus = (
   payload?: number | string | boolean | object,
   isShowChange?: boolean,
 ) => {
-  // 如果没有选中组件，不执行
-  if (store.currentComponentIndex === -1) {
+  // 没有进入编辑状态，不允许改属性（双击题目才进入）
+  if (store.editingIndex === -1) {
     ElMessage({
-      message: '请先将组件处于编辑状态',
+      message: '请先双击题目进入编辑状态',
       type: 'warning',
     })
     return
   }
+  // 改的是面板当前显示的那道题（面板跟随选中项切换）
   const status = store.coms[store.currentComponentIndex].status as unknown as
     | TypeStatus
     | OptionsStatus

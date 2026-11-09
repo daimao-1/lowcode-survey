@@ -231,6 +231,7 @@ const initStore = () =>
 export const useEditorStore = defineStore('editor', {
   state: () => ({
     currentComponentIndex: -1, // 一开始没有选中的组件
+    editingIndex: -1, // 一开始没有进入编辑的题目（属性面板关闭）
     surveyCount: 0, // 用于对问题进行计数
     // 每个业务组件的状态，一开始有两个默认的业务组件
     coms: initStore(),
@@ -238,6 +239,10 @@ export const useEditorStore = defineStore('editor', {
   actions: {
     setCurrentComponentIndex(index: number) {
       this.currentComponentIndex = index
+    },
+    // 进入/退出编辑：属性面板的开关
+    setEditingIndex(index: number) {
+      this.editingIndex = index
     },
     // 新增一个业务组件
     addOption,

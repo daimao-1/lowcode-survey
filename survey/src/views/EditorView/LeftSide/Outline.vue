@@ -1,10 +1,18 @@
 <template>
   <div v-if="store.surveyCount">
-    <draggable v-model="store.coms" item-key="index" @start="dragstart">
+    <draggable
+      v-model="store.coms"
+      item-key="index"
+      :delay="200"
+      :delay-on-touch-only="false"
+      :suppress-click-after-delayed="true"
+      @start="dragstart"
+    >
       <template #item="{ element, index }">
         <div
           class="mb-10"
           @click="clickHandle(index)"
+          @dblclick.stop="enterEdit(index)"
           :key="element.id"
           v-show="isSurveyComName(element.name)"
           :class="{
@@ -50,12 +58,15 @@ function dragstart() {
   store.setCurrentComponentIndex(-1)
 }
 const clickHandle = function (index: number) {
-  if (store.currentComponentIndex === index) {
-    store.setCurrentComponentIndex(-1)
-  } else {
-    store.setCurrentComponentIndex(index)
-    EventBus.emit('scrollToCenter', index)
-  }
+  // 大纲里的单击只做定位（把画布滚到那道题），双击才进入修改。
+  // 与画布保持同一套交互，避免两处手势不一致。
+  store.setCurrentComponentIndex(index)
+  EventBus.emit('scrollToCenter', index)
+}
+const enterEdit = function (index: number) {
+  store.setCurrentComponentIndex(index)
+  store.setEditingIndex(index)
+  EventBus.emit('scrollToCenter', index)
 }
 </script>
 

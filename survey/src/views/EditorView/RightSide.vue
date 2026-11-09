@@ -9,7 +9,7 @@
       v-if="store.currentComponentIndex === -1"
       class="content flex justify-content-center align-items-center"
     >
-      点击题型进行编辑
+      双击题目进行编辑
     </div>
     <div v-else>
       <EditPannel :com="currentCom" />
@@ -26,11 +26,14 @@ import EditPannel from '@/components/SurveyComs/EditItems/EditPannel.vue'
 import type { EditorStore } from '@/types'
 import { useEditorStore } from '@/stores/useEditor'
 const store = useEditorStore() as EditorStore
+// 面板显示的是「当前选中」的那道题
 const currentCom = computed(() => store.coms[store.currentComponentIndex])
-// 选中题目时属性面板才打开（移动端用，移动端它是从底部升起的抽屉）
-const isOpen = computed(() => store.currentComponentIndex !== -1)
-// 关闭抽屉 = 取消选中
+// 面板开不开由 editingIndex 决定：双击题目才进入编辑（editingIndex != -1），
+// 单击只是选中，不会凭空弹出面板。
+const isOpen = computed(() => store.editingIndex !== -1)
+// 关闭抽屉 = 退出编辑并取消选中
 const closeDrawer = () => {
+  store.setEditingIndex(-1)
   store.setCurrentComponentIndex(-1)
 }
 // 右侧编辑面板的父组件提供修改状态的方法
