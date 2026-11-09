@@ -1,15 +1,29 @@
 <template>
   <div class="right-side-container" :class="{ 'is-open': isOpen }" @wheel="handleScroll($event)">
-    <!-- 窄屏下属性面板是从底部升起的抽屉，需要一个明确的关闭入口 -->
-    <div class="drawer-head" v-if="isOpen">
-      <span class="drawer-title">题目属性</span>
-      <el-button type="primary" size="small" @click="closeDrawer">关闭</el-button>
+    <!-- 属性面板的开关：桌面端是常驻面板，没有这个 X 就没法收起；
+         窄屏下它是底部抽屉的头部，同样用它关闭。 -->
+    <div class="panel-head" v-if="isOpen && store.currentComponentIndex !== -1">
+      <span class="panel-title">题目属性</span>
+      <el-button type="primary" size="small" :icon="Close" circle @click="closePanel" />
     </div>
-    <div
-      v-if="store.currentComponentIndex === -1"
-      class="content flex justify-content-center align-items-center"
-    >
-      双击题目进行编辑
+    <!-- 关闭后的状态：给出明确提示和一个重新打开的入口，
+         不然「关掉之后怎么再打开」就成了新问题。 -->
+    <div v-if="!isOpen" class="content panel-empty flex flex-direction-column justify-content-center align-items-center">
+      <p class="panel-empty-text">
+        {{
+          store.currentComponentIndex === -1
+            ? '双击题目进行编辑'
+            : '属性面板已关闭'
+        }}
+      </p>
+      <el-button
+        v-if="store.currentComponentIndex !== -1"
+        type="primary"
+        size="small"
+        @click="openPanel"
+      >
+        重新打开属性面板
+      </el-button>
     </div>
     <div v-else>
       <EditPannel :com="currentCom" />
@@ -18,7 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
+import { Close } from '@element-plus/icons-vue'
 import { handleScroll } from '@/utils'
 import EditPannel from '@/components/SurveyComs/EditItems/EditPannel.vue'
 
@@ -31,11 +46,24 @@ const currentCom = computed(() => store.coms[store.currentComponentIndex])
 // 面板开不开由 editingIndex 决定：双击题目才进入编辑（editingIndex != -1），
 // 单击只是选中，不会凭空弹出面板。
 const isOpen = computed(() => store.editingIndex !== -1)
-// 关闭抽屉 = 退出编辑并取消选中
-const closeDrawer = () => {
+// 关闭面板 = 退出编辑。保留选中态（题目仍然高亮），
+// 这样再双击同一道题就能重新打开，不必先点别处取消选中。
+const closePanel = () => {
   store.setEditingIndex(-1)
-  store.setCurrentComponentIndex(-1)
 }
+// 重新打开面板（对当前选中的题）
+const openPanel = () => {
+  if (store.currentComponentIndex === -1) return
+  store.setEditingIndex(store.currentComponentIndex)
+}
+// Esc 关闭面板
+const onKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape') {
+    store.setEditingIndex(-1)
+  }
+}
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 // 右侧编辑面板的父组件提供修改状态的方法
 </script>
 
@@ -55,9 +83,31 @@ const closeDrawer = () => {
   height: 100%;
 }
 
-// 抽屉头部只在窄屏出现（桌面端右栏常驻，不需要关闭按钮）
-.drawer-head {
-  display: none;
+.panel-empty {
+  gap: 12px;
+  padding: 20px;
+  text-align: center;
+  .panel-empty-text {
+    font-size: 13px;
+    color: var(--font-color-light);
+    margin: 0;
+  }
+}
+
+// 属性面板头部：桌面端是常驻面板的标题栏（带关闭开关），
+// 窄屏下它固定在抽屉顶部
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--white);
+  .panel-title {
+    font-size: 14px;
+    font-weight: 500;
+  }
 }
 
 // ============================================================
@@ -86,21 +136,11 @@ const closeDrawer = () => {
       transform: translateY(0);
     }
   }
-  .drawer-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border-color);
+  .panel-head {
     position: sticky;
     top: 0;
-    background: var(--white);
     z-index: 2;
-    .drawer-title {
-      font-size: 14px;
-      font-weight: 500;
-    }
+    padding: 10px 12px;
   }
 }
 </style>
